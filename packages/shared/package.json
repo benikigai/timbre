@@ -1,0 +1,16 @@
+{
+  "name": "@timbre/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/contracts/index.ts",
+  "types": "./src/contracts/index.ts",
+  "exports": {
+    ".": "./src/contracts/index.ts",
+    "./contracts": "./src/contracts/index.ts"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "zod": "^3.25.76"
+  }
+}
