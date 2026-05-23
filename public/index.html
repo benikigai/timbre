@@ -129,6 +129,7 @@
         font-size: clamp(2.5rem, 7.5vw, 6rem);
         line-height: 1.02; letter-spacing: -0.03em;
         margin: 0 0 2rem; color: var(--ink);
+        text-wrap: balance;
       }
       .headline em { font-style: italic; font-weight: 400;
         background: linear-gradient(135deg, var(--sage) 0%, var(--amber) 55%, var(--gold) 100%);
@@ -156,8 +157,10 @@
       .status-card .live { color: var(--amber); }
       .status-card .sep { color: var(--ink-mute); margin: 0 0.75rem; }
 
-      /* ───── section frames ───── */
-      section.block { padding: 6rem 2.5rem; }
+      /* ───── section frames (varied rhythm) ───── */
+      section.block { padding: 5rem 2.5rem; }
+      section.block.block-tight { padding: 4.5rem 2.5rem; }      /* pipeline section — content-dense, tighter */
+      section.block.block-spacious { padding: 8rem 2.5rem; }     /* prose section — slow down and read */
       .section-inner { max-width: 64rem; margin: 0 auto; }
       .section-label {
         font-family: var(--font-mono); font-size: 0.72rem;
@@ -169,6 +172,7 @@
         font-size: clamp(1.75rem, 4.5vw, 3rem);
         line-height: 1.1; letter-spacing: -0.025em;
         color: var(--ink); margin: 0 0 3rem; text-align: center;
+        text-wrap: balance;
       }
       .section-title em { font-style: italic; color: var(--sage); }
 
@@ -375,7 +379,7 @@
         </div>
       </main>
 
-      <section class="block" id="pipeline">
+      <section class="block block-tight" id="pipeline">
         <div class="section-inner">
           <p class="section-label">The pipeline</p>
           <h2 class="section-title">Seven agents. One workflow. <em>Every hour, your voice gets stronger.</em></h2>
@@ -474,7 +478,7 @@
         </div>
       </section>
 
-      <section class="block">
+      <section class="block block-spacious">
         <div class="section-inner" style="max-width: 44rem;">
           <p class="section-label">For the founders who never publish</p>
           <h2 class="section-title">You ship code. You should <em>ship words</em> too.</h2>
