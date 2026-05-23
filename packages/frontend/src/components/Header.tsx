@@ -33,9 +33,9 @@ export function Header({ state, scoutConnected, runConnected, onReset }: HeaderP
           <span>Timbre</span>
         </a>
 
-        {/* Topic mid */}
-        <div className="hidden md:flex flex-1 items-center min-w-0">
-          {state.topic ? (
+        {/* Topic mid — only when a run is active; pre-run "awaiting" noise is gone */}
+        {state.runId && (
+          <div className="hidden md:flex flex-1 items-center min-w-0">
             <div className="font-[family-name:var(--font-mono)] text-xs text-[color:var(--color-ink-dim)] truncate">
               <span className="text-[color:var(--color-ink-mute)] mr-1.5">topic:</span>
               <span className="text-[color:var(--color-ink)]">{state.topic}</span>
@@ -45,39 +45,40 @@ export function Header({ state, scoutConnected, runConnected, onReset }: HeaderP
                 </span>
               )}
             </div>
-          ) : (
-            <div className="font-[family-name:var(--font-mono)] text-xs text-[color:var(--color-ink-mute)]">
-              awaiting run…
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Stage rail — full names, bigger, with status-driven color */}
-        <div className="flex items-center gap-2">
-          {STAGE_ORDER.map((stage) => {
-            const s = state.stages[stage];
-            const accentClass =
-              s.status === "active"
-                ? "text-[color:var(--color-amber)] bg-[color:var(--color-amber)]/10 border-[color:var(--color-amber)]/35"
-                : s.status === "done"
-                ? "text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/8 border-[color:var(--color-sage)]/30"
-                : s.status === "error"
-                ? "text-[color:var(--color-danger)] bg-[color:var(--color-danger)]/10 border-[color:var(--color-danger)]/35"
-                : "text-[color:var(--color-ink-mute)] border-[color:var(--color-hairline)]";
-            return (
-              <div
-                key={stage}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${accentClass} transition-colors`}
-                title={`${stage}: ${s.status}`}
-              >
-                <PulsingDot variant={s.status === "idle" ? "idle" : s.status} size={6} />
-                <span className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider hidden md:inline capitalize">
-                  {stage}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {/* Pre-run filler so brand stays left-anchored and connection/reset stay right */}
+        {!state.runId && <div className="flex-1" />}
+
+        {/* Stage rail — only when running; hides the gray-dot noise pre-run */}
+        {state.runId && (
+          <div className="flex items-center gap-2">
+            {STAGE_ORDER.map((stage) => {
+              const s = state.stages[stage];
+              const accentClass =
+                s.status === "active"
+                  ? "text-[color:var(--color-amber)] bg-[color:var(--color-amber)]/10 border-[color:var(--color-amber)]/35"
+                  : s.status === "done"
+                  ? "text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/8 border-[color:var(--color-sage)]/30"
+                  : s.status === "error"
+                  ? "text-[color:var(--color-danger)] bg-[color:var(--color-danger)]/10 border-[color:var(--color-danger)]/35"
+                  : "text-[color:var(--color-ink-mute)] border-[color:var(--color-hairline)]";
+              return (
+                <div
+                  key={stage}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${accentClass} transition-colors`}
+                  title={`${stage}: ${s.status}`}
+                >
+                  <PulsingDot variant={s.status === "idle" ? "idle" : s.status} size={6} />
+                  <span className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider hidden md:inline capitalize">
+                    {stage}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Connection */}
         <div className="flex items-center gap-2 pl-3 border-l border-[color:var(--color-hairline)]">

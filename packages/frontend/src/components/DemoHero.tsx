@@ -46,37 +46,11 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Mode toggle */}
-      <div className="flex items-center gap-2 self-start font-mono text-[10px] uppercase tracking-wider">
-        <button
-          type="button"
-          onClick={() => setMode("watch")}
-          className={`px-3 py-1.5 rounded-full border transition ${
-            mode === "watch"
-              ? "border-[color:var(--color-amber)]/60 text-[color:var(--color-amber)] bg-[color:var(--color-amber)]/10"
-              : "border-[color:var(--color-hairline)] text-[color:var(--color-ink-dim)] hover:text-[color:var(--color-ink)]"
-          }`}
-        >
-          Watch the demo
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("advanced")}
-          className={`px-3 py-1.5 rounded-full border transition ${
-            mode === "advanced"
-              ? "border-[color:var(--color-sage)]/60 text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/10"
-              : "border-[color:var(--color-hairline)] text-[color:var(--color-ink-dim)] hover:text-[color:var(--color-ink)]"
-          }`}
-        >
-          Try with live API
-        </button>
-      </div>
-
+    <div className="flex flex-col gap-16 max-w-[64rem] mx-auto w-full py-8 md:py-14">
       {mode === "watch" ? (
-        // ─── Watch mode: one big CTA + 7-beat preview ───────────────────
-        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] p-8 md:p-12 flex flex-col gap-10">
-          <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+        // ─── Watch mode: editorial hero, no card chrome ───────────────────
+        <div className="flex flex-col gap-12">
+          <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-10">
             <button
               type="button"
               onClick={startCachedDemo}
@@ -102,7 +76,7 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
               <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
                 Live demo · ~3 min · seven stages
               </p>
-              <h2 className="font-[family-name:var(--font-display)] font-light text-[2.25rem] md:text-[2.75rem] leading-[1.05] tracking-[-0.01em]">
+              <h2 className="font-[family-name:var(--font-display)] font-light text-[2.5rem] md:text-[3.25rem] leading-[1.02] tracking-[-0.015em] text-balance">
                 {starting ? (
                   <>Starting the <em className="italic text-[color:var(--color-amber)]">pipeline…</em></>
                 ) : (
@@ -148,12 +122,21 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
             ))}
           </div>
 
-          <p className="text-xs text-[color:var(--color-ink-mute)] font-[family-name:var(--font-mono)]">
-            Topic:{" "}
-            <span className="text-[color:var(--color-ink-dim)]">{DEFAULT_TOPIC}</span>
-            {"  ·  "}
-            cached replay for guaranteed clean playback
-          </p>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs font-[family-name:var(--font-mono)]">
+            <span className="text-[color:var(--color-ink-mute)]">
+              Topic:{" "}
+              <span className="text-[color:var(--color-ink-dim)]">{DEFAULT_TOPIC}</span>
+              {"  ·  "}
+              cached replay for guaranteed clean playback
+            </span>
+            <button
+              type="button"
+              onClick={() => setMode("advanced")}
+              className="text-[color:var(--color-sage)] hover:text-[color:var(--color-amber)] transition-colors uppercase tracking-wider"
+            >
+              or run a live topic →
+            </button>
+          </div>
 
           {error && (
             <div className="font-[family-name:var(--font-mono)] text-[11px] text-[color:var(--color-danger)]">
@@ -162,20 +145,27 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
           )}
         </div>
       ) : (
-        // ─── Advanced mode: existing RunControls ────────────────────────
-        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] p-6 md:p-8 flex flex-col gap-5">
-          <div className="flex flex-col gap-3">
+        // ─── Advanced mode: editorial layout, no card chrome ────────────
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
               Live API · real Gemini calls
             </p>
-            <h2 className="font-[family-name:var(--font-display)] font-light text-3xl md:text-[2.25rem] leading-[1.05] tracking-[-0.01em]">
+            <h2 className="font-[family-name:var(--font-display)] font-light text-3xl md:text-[2.5rem] leading-[1.05] tracking-[-0.01em]">
               Run <em className="italic text-[color:var(--color-amber)]">your own</em> topic.
             </h2>
-            <p className="text-[color:var(--color-ink-dim)] text-sm leading-relaxed max-w-[52ch]">
+            <p className="text-[color:var(--color-ink-dim)] leading-relaxed max-w-[52ch]">
               Type a topic below, <em className="not-italic text-[color:var(--color-amber)]">or click any of Scout's top-5 candidates on the left</em> to write about it. Hits real Antigravity (Curate ~6s) and Deep Research (~14s), then a plan-approval gate, then cached replay for Write / Voice / Verify. Tokens accrue.
             </p>
           </div>
           <RunControls onRunStarted={onRunStarted} />
+          <button
+            type="button"
+            onClick={() => setMode("watch")}
+            className="self-start font-[family-name:var(--font-mono)] text-xs text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-sage)] transition-colors uppercase tracking-wider"
+          >
+            ← back to the cached demo
+          </button>
         </div>
       )}
     </div>

@@ -68,20 +68,22 @@ export default function DemoPage() {
         />
       }
       centerContent={
-        <div className="p-6 flex flex-col gap-6 min-h-full">
-          {!runId ? (
+        !runId ? (
+          // Pre-run: editorial hero, no card chrome, horizontal padding scales
+          <div className="px-6 md:px-12 min-h-full flex flex-col">
             <DemoHero onRunStarted={setRunId} />
-          ) : (
-            <>
-              <RunControls onRunStarted={setRunId} runId={runId} />
-              <DiffView state={state} />
-              <ActivityFeed state={state} />
-              {state.completed && <EditableDraft state={state} />}
-              <MultiplexBoard state={state} />
-              {beat === "proof" && <ProofBeat />}
-            </>
-          )}
-        </div>
+          </div>
+        ) : (
+          // Running: dashboard layout
+          <div className="p-6 flex flex-col gap-6 min-h-full">
+            <RunControls onRunStarted={setRunId} runId={runId} />
+            <DiffView state={state} />
+            <ActivityFeed state={state} />
+            {state.completed && <EditableDraft state={state} />}
+            <MultiplexBoard state={state} />
+            {beat === "proof" && <ProofBeat />}
+          </div>
+        )
       }
       overlays={<><PlanApprovalModal state={state} runId={runId} /><VerifyOverlay state={state} /></>}
     />
