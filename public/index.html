@@ -264,9 +264,14 @@
         border: 1px solid rgba(127, 169, 139, 0.18);
         border-radius: 0.875rem;
         backdrop-filter: blur(10px);
-        transition: border-color 280ms, background 280ms;
+        transition: border-color 280ms, background 280ms, transform 280ms, box-shadow 280ms;
       }
-      .primitive-card:hover { border-color: rgba(232, 165, 116, 0.35); background: rgba(255,255,255,0.045); }
+      .primitive-card:hover {
+        border-color: rgba(232, 165, 116, 0.4);
+        background: rgba(255,255,255,0.055);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px -12px rgba(127, 169, 139, 0.18);
+      }
       .primitive-card .name { font-family: var(--font-display); font-weight: 500; font-size: 0.92rem; color: var(--ink); display: block; letter-spacing: -0.005em; }
       .primitive-card .brag { font-family: var(--font-body); font-size: 0.82rem; line-height: 1.4; color: var(--ink-dim); margin: 0.35rem 0 0; }
 
