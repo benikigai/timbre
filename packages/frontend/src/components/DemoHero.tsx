@@ -62,7 +62,7 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
   };
 
   return (
-    <div className="flex flex-col gap-16 max-w-[64rem] mx-auto w-full py-8 md:py-14">
+    <div className="flex flex-col gap-16 max-w-[80rem] mx-auto w-full py-8 md:py-14">
       {mode === "watch" ? (
         // ─── Watch mode: editorial hero, no card chrome ───────────────────
         <div className="flex flex-col gap-12">

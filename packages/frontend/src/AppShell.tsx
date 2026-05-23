@@ -20,7 +20,7 @@ export function AppShell({ state, scoutConnected, runConnected, onReset, leftPan
   return (
     <div className="min-h-screen bg-[color:var(--color-bg)] text-[color:var(--color-ink)] flex flex-col">
       <Header state={state} scoutConnected={scoutConnected} runConnected={runConnected} onReset={onReset} />
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-0">
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[440px_minmax(0,1fr)] gap-0">
         <aside className="border-r border-[color:var(--color-hairline)] overflow-y-auto lg:max-h-[calc(100vh-3.25rem)]">
           {leftPanel}
         </aside>
