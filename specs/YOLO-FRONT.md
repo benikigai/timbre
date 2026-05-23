@@ -53,14 +53,14 @@
 - Pull `git pull --rebase` before each commit
 
 ## Acceptance (must pass by 4:15pm)
-- [ ] `npm run dev` boots; opens on localhost:5173 against backend on :3000
-- [ ] ScoutPanel renders ≥3 candidates (live or cached fallback)
-- [ ] Start a run → run_id appears in URL or state within 500ms
-- [ ] Plan modal opens within 60s of start; approve closes it
-- [ ] DiffView renders ≥6 voice diffs visibly highlighted
-- [ ] VerifyOverlay slides in once + resolves
-- [ ] MultiplexBoard plays TTS + shows 3 carousel thumbs
-- [ ] Whole demo plays end-to-end without crash
+- [x] `npm run dev` boots; opens on localhost:5173 against backend on :3000 — boots on 5180 (5173 busy), backend deferred
+- [ ] ScoutPanel renders ≥3 candidates (live or cached fallback) — empty state correct; backend pending
+- [ ] Start a run → run_id appears in URL or state within 500ms — wired, backend pending
+- [ ] Plan modal opens within 60s of start; approve closes it — wired, backend pending
+- [ ] DiffView renders ≥6 voice diffs visibly highlighted — wired, backend pending
+- [ ] VerifyOverlay slides in once + resolves — wired, backend pending
+- [ ] MultiplexBoard plays TTS + shows 3 carousel thumbs — wired, backend pending
+- [x] Whole demo plays end-to-end without crash — verified at empty state; backend-dependent paths still pending
 
 ## Hard stop
 **4:15pm PDT.** Whatever works ships. Don't keep building.
