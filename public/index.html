@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Timbre — your voice, on autopilot</title>
     <meta name="description" content="A multi-agent content engine that monitors your industry, researches what matters, and publishes in your voice." />
-    <meta name="theme-color" content="#0a0a14" />
+    <meta name="theme-color" content="#0D110F" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -13,19 +13,25 @@
       :root {
         color-scheme: dark;
 
-        /* base */
-        --bg: #06060c;
-        --ink: #f4f3ef;
-        --ink-dim: rgba(244, 243, 239, 0.6);
-        --ink-mute: rgba(244, 243, 239, 0.36);
-        --hairline: rgba(255, 255, 255, 0.08);
+        /* base — warm ink with subtle green undertone */
+        --bg: #0D110F;
+        --ink: #F2EFE5;
+        --ink-dim: rgba(242, 239, 229, 0.6);
+        --ink-mute: rgba(242, 239, 229, 0.36);
+        --hairline: rgba(255, 255, 255, 0.07);
         --surface: rgba(255, 255, 255, 0.035);
 
-        /* gemini-inspired multi-stop gradient */
-        --grad-1: #4f8fff;   /* electric blue */
-        --grad-2: #b554ff;   /* magenta-purple */
-        --grad-3: #ff6b9d;   /* pink */
-        --grad-4: #ffb478;   /* peach */
+        /* timbre palette — sage anchor + amber warmth + gold highlight */
+        --sage: #7FA98B;
+        --sage-deep: #5C8170;
+        --amber: #E8A574;
+        --amber-hot: #D89254;
+        --gold: #F4D8A0;
+
+        /* gradient stops used for headline + spark + active glow */
+        --grad-1: var(--sage);
+        --grad-2: var(--amber);
+        --grad-3: var(--gold);
 
         --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
         --font-body: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
@@ -36,38 +42,39 @@
       html, body { margin: 0; padding: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-body); overflow-x: hidden; }
       body { font-feature-settings: "ss01", "ss02", "cv01"; -webkit-font-smoothing: antialiased; }
 
-      /* ───── aurora background ───── */
+      /* ───── aurora background (subdued: tighter palette, slower drift, lower opacity) ───── */
       .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
       .aurora::before, .aurora::after {
-        content: ""; position: absolute; inset: -20%; filter: blur(80px); opacity: 0.7;
+        content: ""; position: absolute; inset: -20%; filter: blur(100px);
       }
       .aurora::before {
+        opacity: 0.38;
         background:
-          radial-gradient(40% 60% at 20% 30%, var(--grad-1) 0%, transparent 60%),
-          radial-gradient(35% 55% at 80% 20%, var(--grad-2) 0%, transparent 60%),
-          radial-gradient(50% 50% at 60% 80%, var(--grad-3) 0%, transparent 65%);
-        animation: drift-a 22s ease-in-out infinite alternate;
+          radial-gradient(45% 60% at 20% 30%, var(--sage-deep) 0%, transparent 65%),
+          radial-gradient(40% 55% at 80% 75%, var(--amber-hot) 0%, transparent 65%);
+        animation: drift-a 42s ease-in-out infinite alternate;
       }
       .aurora::after {
+        opacity: 0.28;
         background:
-          radial-gradient(45% 65% at 70% 40%, var(--grad-2) 0%, transparent 55%),
-          radial-gradient(40% 50% at 30% 70%, var(--grad-4) 0%, transparent 60%);
-        animation: drift-b 28s ease-in-out infinite alternate;
+          radial-gradient(40% 55% at 75% 25%, var(--sage) 0%, transparent 60%),
+          radial-gradient(35% 50% at 25% 75%, var(--amber) 0%, transparent 60%);
+        animation: drift-b 56s ease-in-out infinite alternate;
         mix-blend-mode: screen;
       }
       @keyframes drift-a {
         0%   { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(8%, -6%) scale(1.15); }
+        100% { transform: translate(6%, -4%) scale(1.1); }
       }
       @keyframes drift-b {
-        0%   { transform: translate(0, 0) scale(1.1); }
-        100% { transform: translate(-10%, 8%) scale(1); }
+        0%   { transform: translate(0, 0) scale(1.08); }
+        100% { transform: translate(-7%, 5%) scale(1); }
       }
       /* darkening film over the aurora so text stays readable */
       .aurora-veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
         background:
-          radial-gradient(ellipse at center, transparent 0%, rgba(6,6,12,0.55) 60%, rgba(6,6,12,0.9) 100%),
-          linear-gradient(180deg, rgba(6,6,12,0.4) 0%, rgba(6,6,12,0.0) 30%, rgba(6,6,12,0.5) 100%);
+          radial-gradient(ellipse at center, transparent 0%, rgba(13,17,15,0.55) 60%, rgba(13,17,15,0.92) 100%),
+          linear-gradient(180deg, rgba(13,17,15,0.4) 0%, rgba(13,17,15,0.0) 30%, rgba(13,17,15,0.5) 100%);
       }
       /* grain */
       .grain { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
@@ -86,7 +93,7 @@
         font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.04em;
         background: var(--surface); border: 1px solid var(--hairline); color: var(--ink-dim); backdrop-filter: blur(12px);
       }
-      .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 12px #4ade80; animation: pulse 1.8s ease-in-out infinite; }
+      .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px var(--amber); animation: pulse 1.8s ease-in-out infinite; }
       @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
 
       main.hero { flex: 1; display: grid; place-items: center; padding: 2rem 2.5rem 4rem; }
@@ -124,7 +131,7 @@
         font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-dim); letter-spacing: 0.02em;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
       }
-      .card .live { color: #4ade80; }
+      .card .live { color: var(--amber); }
       .card .sep { color: var(--ink-mute); margin: 0 0.75rem; }
 
       /* pipeline visualization */
@@ -135,11 +142,42 @@
       .stages { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
       .stage { display: flex; align-items: center; gap: 0.6rem; flex: 1 1 auto; min-width: 0; }
       .stage-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-        background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
-        box-shadow: 0 0 12px rgba(181, 84, 255, 0.5);
+        background: var(--sage);
+        box-shadow: 0 0 6px rgba(127, 169, 139, 0.45), inset 0 0 3px rgba(232, 165, 116, 0.3);
+        animation: stage-pulse 14s ease-in-out infinite;
+        animation-delay: calc(var(--i, 0) * 2s);
+        transform-origin: center;
       }
-      .stage-name { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-dim); white-space: nowrap; }
-      .stage-arrow { color: var(--ink-mute); font-family: var(--font-mono); font-size: 0.7rem; }
+      .stage-name { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-dim); white-space: nowrap;
+        animation: stage-name-pulse 14s ease-in-out infinite;
+        animation-delay: calc(var(--i, 0) * 2s);
+      }
+      .stage-arrow { color: var(--ink-mute); font-family: var(--font-mono); font-size: 0.7rem;
+        animation: arrow-flow 14s ease-in-out infinite;
+        animation-delay: calc(var(--i, 0) * 2s + 1s);
+      }
+      @keyframes stage-pulse {
+        0%, 12%, 100% {
+          transform: scale(1);
+          background: var(--sage);
+          box-shadow: 0 0 6px rgba(127, 169, 139, 0.45), inset 0 0 3px rgba(232, 165, 116, 0.3);
+          filter: brightness(1);
+        }
+        4%, 8% {
+          transform: scale(1.85);
+          background: var(--amber);
+          box-shadow: 0 0 18px rgba(232, 165, 116, 0.95), 0 0 36px rgba(216, 146, 84, 0.55), 0 0 60px rgba(244, 216, 160, 0.3);
+          filter: brightness(1.55);
+        }
+      }
+      @keyframes stage-name-pulse {
+        0%, 12%, 100% { color: var(--ink-dim); text-shadow: none; }
+        4%, 8% { color: var(--ink); text-shadow: 0 0 10px rgba(232, 165, 116, 0.5); }
+      }
+      @keyframes arrow-flow {
+        0%, 12%, 100% { color: var(--ink-mute); transform: translateX(0); }
+        4%, 8% { color: var(--amber); transform: translateX(2px); }
+      }
 
       /* primitives badges */
       .primitives { margin: 4rem auto 0; max-width: 48rem; text-align: center; }
@@ -148,9 +186,11 @@
       }
       .primitives-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
       .primitive { padding: 0.45rem 0.85rem; border-radius: 999px;
-        background: var(--surface); border: 1px solid var(--hairline); backdrop-filter: blur(10px);
+        background: var(--surface); border: 1px solid rgba(127, 169, 139, 0.18); backdrop-filter: blur(10px);
         font-family: var(--font-body); font-size: 0.78rem; color: var(--ink-dim);
+        transition: border-color 240ms, color 240ms;
       }
+      .primitive:hover { border-color: rgba(232, 165, 116, 0.35); color: var(--ink); }
       .primitive strong { color: var(--ink); font-weight: 500; }
 
       footer.foot { padding: 2rem 2.5rem; text-align: center; font-family: var(--font-mono);
@@ -161,7 +201,8 @@
 
       /* reduce motion */
       @media (prefers-reduced-motion: reduce) {
-        .aurora::before, .aurora::after, .wordmark .gradient, .pill .dot { animation: none !important; }
+        .aurora::before, .aurora::after, .wordmark .gradient, .pill .dot,
+        .stage-dot, .stage-name, .stage-arrow { animation: none !important; }
       }
 
       /* mobile */
@@ -187,9 +228,9 @@
           <svg class="spark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
               <linearGradient id="sg" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#4f8fff" />
-                <stop offset="50%" stop-color="#b554ff" />
-                <stop offset="100%" stop-color="#ff6b9d" />
+                <stop offset="0%" stop-color="#7FA98B" />
+                <stop offset="55%" stop-color="#E8A574" />
+                <stop offset="100%" stop-color="#F4D8A0" />
               </linearGradient>
             </defs>
             <path d="M12 2 L13.5 9 L21 10.5 L13.5 12 L12 19 L10.5 12 L3 10.5 L10.5 9 Z" fill="url(#sg)" />
@@ -205,7 +246,7 @@
 
       <main class="hero">
         <div class="hero-inner">
-          <h1 class="wordmark">Your voice<span class="gradient">.</span></h1>
+          <h1 class="wordmark">Timbre<span class="gradient">.</span></h1>
           <p class="tagline">A multi-agent content engine that monitors your industry, researches what matters, and publishes <em>in your voice</em>.</p>
           <div class="card">
             <span class="live">● Scout online</span>
@@ -218,19 +259,19 @@
           <section class="pipeline" id="pipeline">
             <div class="pipeline-label">The pipeline</div>
             <div class="stages">
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Scout</span></div>
-              <span class="stage-arrow">→</span>
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Curate</span></div>
-              <span class="stage-arrow">→</span>
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Research</span></div>
-              <span class="stage-arrow">→</span>
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Write</span></div>
-              <span class="stage-arrow">→</span>
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Voice</span></div>
-              <span class="stage-arrow">→</span>
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Verify</span></div>
-              <span class="stage-arrow">→</span>
-              <div class="stage"><span class="stage-dot"></span><span class="stage-name">Multiplex</span></div>
+              <div class="stage" style="--i:0"><span class="stage-dot"></span><span class="stage-name">Scout</span></div>
+              <span class="stage-arrow" style="--i:0">→</span>
+              <div class="stage" style="--i:1"><span class="stage-dot"></span><span class="stage-name">Curate</span></div>
+              <span class="stage-arrow" style="--i:1">→</span>
+              <div class="stage" style="--i:2"><span class="stage-dot"></span><span class="stage-name">Research</span></div>
+              <span class="stage-arrow" style="--i:2">→</span>
+              <div class="stage" style="--i:3"><span class="stage-dot"></span><span class="stage-name">Write</span></div>
+              <span class="stage-arrow" style="--i:3">→</span>
+              <div class="stage" style="--i:4"><span class="stage-dot"></span><span class="stage-name">Voice</span></div>
+              <span class="stage-arrow" style="--i:4">→</span>
+              <div class="stage" style="--i:5"><span class="stage-dot"></span><span class="stage-name">Verify</span></div>
+              <span class="stage-arrow" style="--i:5">→</span>
+              <div class="stage" style="--i:6"><span class="stage-dot"></span><span class="stage-name">Multiplex</span></div>
             </div>
           </section>
 
