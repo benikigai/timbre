@@ -204,7 +204,9 @@
         font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-dim); letter-spacing: 0.02em;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
       }
-      .status-card .live { color: var(--amber); }
+      .status-card .live { color: var(--amber); text-decoration: none; transition: color 200ms ease; }
+      .status-card a.live:hover { color: var(--amber-hot); }
+      .status-card a.live .ext { opacity: 0.55; margin-left: 0.18rem; font-size: 0.78em; vertical-align: 0.06em; }
       .status-card .sep { color: var(--ink-mute); margin: 0 0.75rem; }
 
       /* ───── section frames (varied rhythm) ───── */
@@ -450,7 +452,13 @@
           <h1 class="headline">Timbre is <em>your unique voice.</em></h1>
           <p class="deck">Researched. Drafted. Verified. <strong>In your voice.</strong></p>
           <div class="status-card">
-            <span class="live">● Scout online</span>
+            <a
+              href="https://antigravity.google.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="live"
+              title="Scout runs on Google Antigravity — the new I/O 2026 managed-agent runtime. Always-on Linux sandbox, hourly ticks."
+            >● Scout online<span class="ext">↗</span></a>
             <span class="sep">/</span>
             <span>Cerebral Valley × I/O 2026</span>
             <span class="sep">/</span>
