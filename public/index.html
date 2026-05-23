@@ -134,16 +134,22 @@
       .nav-right a { color: var(--ink-dim); text-decoration: none; font-size: 0.875rem; transition: color 200ms; }
       .nav-right a:hover { color: var(--ink); }
       .nav-right .cta-demo {
-        color: var(--bg); background: var(--amber);
-        padding: 0.45rem 0.95rem; border-radius: 999px;
-        font-family: var(--font-body); font-weight: 500; font-size: 0.82rem;
+        color: var(--ink); background: rgba(232, 165, 116, 0.06);
+        padding: 0.42rem 0.9rem; border-radius: 999px;
+        border: 1px solid rgba(232, 165, 116, 0.28);
+        font-family: var(--font-body); font-weight: 450; font-size: 0.82rem;
         letter-spacing: -0.005em;
-        transition: background 200ms, transform 200ms, box-shadow 200ms;
+        display: inline-flex; align-items: center; gap: 0.45rem;
+        transition: background 220ms ease, border-color 220ms ease, color 220ms ease;
+      }
+      .nav-right .cta-demo::before {
+        content: ""; width: 5px; height: 5px; border-radius: 50%;
+        background: var(--amber); box-shadow: 0 0 8px rgba(232, 165, 116, 0.6);
       }
       .nav-right .cta-demo:hover {
-        background: var(--amber-hot); color: var(--bg);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px -6px rgba(232, 165, 116, 0.45);
+        background: rgba(232, 165, 116, 0.12);
+        border-color: rgba(232, 165, 116, 0.5);
+        color: var(--ink);
       }
 
       .pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem; border-radius: 999px;
