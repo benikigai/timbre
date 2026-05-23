@@ -20,7 +20,7 @@ const BEATS = [
   { n: "04", label: "Write", note: "drafts the article" },
   { n: "05", label: "Voice", note: "rewrites in your voice" },
   { n: "06", label: "Verify", note: "catches drift" },
-  { n: "07", label: "Multiplex", note: "fans out to audio + carousel" },
+  { n: "07", label: "Multiplex", note: "fans out: TTS, radio, carousel, Veo" },
 ];
 
 export function DemoHero({ onRunStarted }: DemoHeroProps) {
