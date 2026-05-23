@@ -7,12 +7,33 @@
 // multiplex), then within-stage append order. Tracks have stable colors so
 // the feed feels organized as it fills.
 
+import { useEffect, useState } from "react";
 import type { RunState } from "../state/runStateTypes";
 import type { Candidate, StageId, VoiceDiff, Discrepancy } from "@timbre/shared/contracts";
 
 interface ActivityFeedProps {
   state: RunState;
 }
+
+// Stage → Google primitive (model / agent ID) — surfaced as "powered by"
+// badges so judges can see exactly which I/O tool is doing the work.
+const STAGE_PRIMITIVE: Record<Exclude<StageId, "scout">, string> = {
+  curate: "gemini-3.5-flash",
+  research: "deep-research-preview-04-2026",
+  write: "gemini-3.5-flash",
+  voice: "gemini-3.5-flash",
+  verify: "gemini-3.5-flash",
+  multiplex: "parallel · tts + banana + radio + veo",
+};
+
+const STAGE_PRIMITIVE_KIND: Record<Exclude<StageId, "scout">, "agent" | "model" | "parallel"> = {
+  curate: "model",
+  research: "agent",
+  write: "model",
+  voice: "model",
+  verify: "model",
+  multiplex: "parallel",
+};
 
 type ItemKind =
   | "thought"
@@ -128,12 +149,63 @@ function buildItems(state: RunState): ActivityItem[] {
 }
 
 function StageBadge({ stage }: { stage: ActivityItem["stage"] }) {
+  const s = stage as Exclude<StageId, "scout">;
   return (
-    <span
-      className={`shrink-0 font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${STAGE_ACCENT[stage as Exclude<StageId, "scout">]}`}
-    >
-      {STAGE_LABEL[stage as Exclude<StageId, "scout">]}
-    </span>
+    <div className="shrink-0 flex flex-col gap-0.5 min-w-[88px]">
+      <span
+        className={`font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${STAGE_ACCENT[s]} text-center`}
+      >
+        {STAGE_LABEL[s]}
+      </span>
+      <span className="font-mono text-[8px] text-[color:var(--color-ink-mute)] text-center truncate" title={STAGE_PRIMITIVE[s]}>
+        {STAGE_PRIMITIVE[s]}
+      </span>
+    </div>
+  );
+}
+
+// Big "currently running" banner — shows the live model/agent + elapsed time.
+function CurrentlyRunning({ state }: { state: RunState }) {
+  const active = STAGE_ORDER.find((s) => state.stages[s].status === "active");
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [active]);
+
+  if (!active) return null;
+  const startedAt = state.stages[active].startedAt;
+  const elapsed = startedAt
+    ? Math.max(0, Math.round((now - new Date(startedAt).getTime()) / 1000))
+    : 0;
+  const kindLabel = STAGE_PRIMITIVE_KIND[active] === "agent"
+    ? "agent"
+    : STAGE_PRIMITIVE_KIND[active] === "parallel"
+    ? "parallel jobs"
+    : "model";
+
+  return (
+    <div className="rounded-xl border border-[color:var(--color-amber)]/40 bg-[color:var(--color-amber)]/8 p-4 flex items-center gap-4">
+      <div className="relative w-3 h-3 shrink-0">
+        <span className="absolute inset-0 rounded-full bg-[color:var(--color-amber)] animate-ping opacity-60" />
+        <span className="absolute inset-0 rounded-full bg-[color:var(--color-amber)]" />
+      </div>
+      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-amber)]">
+          currently running · {kindLabel}
+        </span>
+        <span className="font-[family-name:var(--font-display)] text-lg tracking-tight truncate">
+          {STAGE_LABEL[active]}{" — "}
+          <span className="text-[color:var(--color-ink-dim)] font-mono text-sm">
+            {STAGE_PRIMITIVE[active]}
+          </span>
+        </span>
+      </div>
+      <div className="font-mono text-sm tabular-nums text-[color:var(--color-amber)] shrink-0">
+        {elapsed}s
+      </div>
+    </div>
   );
 }
 
@@ -338,23 +410,26 @@ export function ActivityFeed({ state }: ActivityFeedProps) {
   const items = buildItems(state);
   if (!state.runId) return null;
   return (
-    <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] backdrop-blur-md flex flex-col min-h-[200px]">
-      <div className="flex items-baseline justify-between px-5 py-3 border-b border-[color:var(--color-hairline)]">
-        <h3 className="font-[family-name:var(--font-display)] text-lg tracking-tight">
-          Show your work
-        </h3>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
-          {items.length} interaction{items.length === 1 ? "" : "s"}
-        </span>
-      </div>
-      <div className="flex-1 overflow-y-auto max-h-[60vh] px-5 py-4 flex flex-col gap-3">
-        {items.length === 0 ? (
-          <span className="text-[color:var(--color-ink-mute)] text-sm italic">
-            Waiting for the first interaction…
+    <div className="flex flex-col gap-3">
+      <CurrentlyRunning state={state} />
+      <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] backdrop-blur-md flex flex-col min-h-[200px]">
+        <div className="flex items-baseline justify-between px-5 py-3 border-b border-[color:var(--color-hairline)]">
+          <h3 className="font-[family-name:var(--font-display)] text-lg tracking-tight">
+            Show your work
+          </h3>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+            {items.length} interaction{items.length === 1 ? "" : "s"}
           </span>
-        ) : (
-          items.map((item) => <ItemRow key={item.key} item={item} />)
-        )}
+        </div>
+        <div className="flex-1 overflow-y-auto max-h-[60vh] px-5 py-4 flex flex-col gap-3">
+          {items.length === 0 ? (
+            <span className="text-[color:var(--color-ink-mute)] text-sm italic">
+              Waiting for the first interaction…
+            </span>
+          ) : (
+            items.map((item) => <ItemRow key={item.key} item={item} />)
+          )}
+        </div>
       </div>
     </div>
   );

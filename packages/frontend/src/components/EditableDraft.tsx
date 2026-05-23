@@ -16,6 +16,9 @@ export function EditableDraft({ state }: EditableDraftProps) {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [published, setPublished] = useState(false);
+  const [feedback, setFeedback] = useState<string>("");
+  const [refining, setRefining] = useState(false);
+  const [refineError, setRefineError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!state.finalMdUrl) {
@@ -54,6 +57,30 @@ export function EditableDraft({ state }: EditableDraftProps) {
       setTimeout(() => setCopied(false), 1800);
     } catch {
       /* clipboard blocked; no-op */
+    }
+  };
+
+  const handleRefine = async () => {
+    if (refining || !feedback.trim()) return;
+    setRefining(true);
+    setRefineError(null);
+    try {
+      const r = await fetch("/api/refine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draft, feedback }),
+      });
+      if (!r.ok) {
+        const errText = await r.text();
+        throw new Error(`HTTP ${r.status}: ${errText.slice(0, 120)}`);
+      }
+      const data = (await r.json()) as { refined: string };
+      setDraft(data.refined);
+      setFeedback("");
+    } catch (e) {
+      setRefineError((e as Error).message);
+    } finally {
+      setRefining(false);
     }
   };
 
@@ -103,9 +130,50 @@ export function EditableDraft({ state }: EditableDraftProps) {
               className="w-full min-h-[24rem] max-h-[60vh] resize-y bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded-xl p-4 text-[color:var(--color-ink)] text-sm leading-relaxed font-[family-name:var(--font-sans)] outline-none focus:border-[color:var(--color-sage)]/50"
               spellCheck={true}
             />
+            {/* Refine: natural-language feedback → re-run via Flash */}
+            <div className="rounded-xl border border-[color:var(--color-sage)]/30 bg-[color:var(--color-sage)]/5 p-3 flex flex-col gap-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[color:var(--color-sage)]">
+                  refine with ai · powered by gemini-3.5-flash
+                </span>
+                <span className="font-mono text-[10px] text-[color:var(--color-ink-mute)] italic">
+                  "shorten it", "more skeptical", "drop section 3"
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !refining && feedback.trim()) {
+                      e.preventDefault();
+                      handleRefine();
+                    }
+                  }}
+                  disabled={refining}
+                  placeholder="Tell the model what to change…"
+                  className="flex-1 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded-lg px-3 py-2 text-sm text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-mute)] outline-none focus:border-[color:var(--color-sage)]/50 disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  onClick={handleRefine}
+                  disabled={refining || !feedback.trim()}
+                  className="font-mono text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg bg-[color:var(--color-sage)]/20 border border-[color:var(--color-sage)]/45 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/30 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {refining ? "refining…" : "refine →"}
+                </button>
+              </div>
+              {refineError && (
+                <p className="text-[11px] font-mono text-[color:var(--color-danger)]">
+                  {refineError}
+                </p>
+              )}
+            </div>
+
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <p className="text-[11px] text-[color:var(--color-ink-mute)] font-mono">
-                You own the last word. Edit anywhere — the model proposes, you ship.
+                You own the last word. Edit inline OR tell the model what to change — then ship.
               </p>
               <div className="flex items-center gap-2">
                 {edited && (
