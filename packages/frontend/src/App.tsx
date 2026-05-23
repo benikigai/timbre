@@ -12,10 +12,10 @@ export default function App() {
   const { events, agents, isConnected } = useSSE()
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
       <Header view={view} setView={setView} isConnected={isConnected} />
       <main className="flex-1 p-4">
-        {view === "council" && <CouncilView agents={agents} events={events} />}
+        {view === "council" && <CouncilView agents={agents} />}
         {view === "diff" && <DiffView events={events} />}
         {view === "multiplex" && <MultiplexBoard events={events} />}
       </main>

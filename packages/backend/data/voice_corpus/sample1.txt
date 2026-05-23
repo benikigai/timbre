@@ -1,0 +1,3 @@
+We need to talk about local-first. Most web applications treat the client as a dumb terminal that renders whatever the database gives it. That is a mistake. Latency is the primary killer of user experience.
+When we built our collaborative editor, we avoided server roundtrips entirely for basic mutations. By compiling Yjs or Automerge into WebAssembly, we perform CRDT sync directly in a worker thread. We sync state changes asynchronously using WebSockets. If the network drops, the app works. When it reconnects, changes merge. No spinlocks, no loading spinners, no blocking.
+Keep the client smart and write data locally first.

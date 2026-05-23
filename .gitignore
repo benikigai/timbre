@@ -31,3 +31,4 @@ yarn-error.log*
 candidates.json
 seen.txt
 alerts.json
+.vercel

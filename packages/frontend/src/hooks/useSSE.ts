@@ -30,7 +30,7 @@ export function useSSE() {
   const connect = useCallback(() => {
     if (esRef.current) esRef.current.close()
 
-    const es = new EventSource("/api/stream")
+    const es = new EventSource("/api/events")
     esRef.current = es
 
     es.onopen = () => setIsConnected(true)
@@ -41,7 +41,7 @@ export function useSSE() {
         setEvents((prev) => [...prev, event])
         setAgents((prev) => {
           const agent = prev[event.agent]
-          if (\!agent) return prev
+          if (!agent) return prev
           return {
             ...prev,
             [event.agent]: {
@@ -62,7 +62,7 @@ export function useSSE() {
       es.close()
       setTimeout(connect, 3000)
     }
-  }, [])
+  }, []) // Empty dependency array because we want this callback to be stable
 
   useEffect(() => {
     connect()

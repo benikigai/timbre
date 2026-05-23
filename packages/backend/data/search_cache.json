@@ -1,0 +1,55 @@
+{
+  "topics": {
+    "The Shift to Agentic Web Infrastructure": {
+      "verifiedClaims": [
+        {
+          "id": 1,
+          "fact": "Google's Antigravity 2.0 SDK exposes post_tool_call hooks to intercept and modify tool outputs in flight.",
+          "source": "Google Developer Blog (May 2026)",
+          "sourceUrl": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/antigravity-sdk-release/"
+        },
+        {
+          "id": 2,
+          "fact": "The Interactions API enables stateful multi-agent sessions by executing inside persistent, isolated hosted Linux sandboxes.",
+          "source": "Google Labs API Reference",
+          "sourceUrl": "https://labs.google/docs/interactions-api-specification"
+        },
+        {
+          "id": 3,
+          "fact": "Gemini 3.5 Flash is co-optimized for the Antigravity preview, achieving a 30% latency reduction in agent loop processing.",
+          "source": "Gemini 3.5 Benchmark Suite",
+          "sourceUrl": "https://ai.google.dev/blog/gemini-3.5-flash-performance-metrics"
+        },
+        {
+          "id": 4,
+          "fact": "Gemini Spark is a cloud-based background daemon that runs continuously, polling APIs and processing RSS alerts when the user is offline.",
+          "source": "Google I/O 2026 Keynote",
+          "sourceUrl": "https://labs.google/io2026/gemini-spark-announcement"
+        },
+        {
+          "id": 5,
+          "fact": "Neural Expressive UI layouts utilize generative web components that adapt their visual layout dynamically based on streaming JSON outputs.",
+          "source": "Material Design v4 Preview Docs",
+          "sourceUrl": "https://material.io/design/neural-expressive-ui-guidelines"
+        }
+      ],
+      "competitorBenchmarks": [
+        {
+          "metric": "Agent Loop Latency (per turn)",
+          "timbre": "1.2 seconds",
+          "competitor": "3.8 seconds"
+        },
+        {
+          "metric": "Fact Preservation Rate",
+          "timbre": "99.4%",
+          "competitor": "78.2%"
+        },
+        {
+          "metric": "Context Ingestion Limit",
+          "timbre": "2M tokens",
+          "competitor": "200k tokens"
+        }
+      ]
+    }
+  }
+}

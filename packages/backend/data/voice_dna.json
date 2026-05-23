@@ -1,0 +1,14 @@
+{
+  "tone": "direct, engineering-first, slightly skeptical",
+  "sentenceLength": "concise",
+  "forbiddenJargon": [
+    "disrupt",
+    "game-changing",
+    "leverage",
+    "robust",
+    "delve",
+    "seamlessly",
+    "tapestry",
+    "testament"
+  ]
+}

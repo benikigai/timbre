@@ -1,0 +1,3 @@
+Stop adding complex agent frameworks when simple linear pipelines work. We built our AI assistant using LangChain and it became a mess of nesting, callbacks, and impossible debugging. 
+We threw it all away and wrote simple, structured prompts using the raw Gemini SDK. We pass context manually and parse the JSON responses using Zod. It took a day to write and reduced API latency by 30%.
+Keep it simple. You don't need a framework to call an API. Wrap it in a function.

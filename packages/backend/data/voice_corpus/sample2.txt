@@ -1,0 +1,3 @@
+Vite has won the bundler wars, but our build setups are still bloated. Developers add npm packages without looking at their bundle impact. A single visual library can pull in hundreds of kilobytes of un-tree-shaken JavaScript.
+We audited our build and found that a simple charts package was adding 450kb to our main bundle. We replaced it with a custom SVG renderer built in under 100 lines of React code. The page loaded 2x faster, and our INP dropped by 40ms.
+Don't install a package when simple native code does the job. Audit your bundles weekly.
