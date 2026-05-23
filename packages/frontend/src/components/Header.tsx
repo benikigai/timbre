@@ -13,8 +13,12 @@ export function Header({ state, scoutConnected, runConnected }: HeaderProps) {
   return (
     <header className="sticky top-0 z-20 backdrop-blur-md bg-[color:var(--color-bg)]/70 border-b border-[color:var(--color-hairline)]">
       <div className="flex items-center justify-between px-6 py-3 gap-6">
-        {/* Brand */}
-        <div className="flex items-center gap-2 font-[family-name:var(--font-display)] font-medium text-base">
+        {/* Brand — links back to landing (hard nav out of /app/) */}
+        <a
+          href="/"
+          className="flex items-center gap-2 font-[family-name:var(--font-display)] font-medium text-base text-[color:var(--color-ink)] hover:opacity-80 transition-opacity no-underline"
+          aria-label="Back to Timbre home"
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <defs>
               <linearGradient id="sg" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
@@ -26,7 +30,7 @@ export function Header({ state, scoutConnected, runConnected }: HeaderProps) {
             <path d="M12 2 L13.5 9 L21 10.5 L13.5 12 L12 19 L10.5 12 L3 10.5 L10.5 9 Z" fill="url(#sg)" />
           </svg>
           <span>Timbre</span>
-        </div>
+        </a>
 
         {/* Topic mid */}
         <div className="hidden md:flex flex-1 items-center min-w-0">
