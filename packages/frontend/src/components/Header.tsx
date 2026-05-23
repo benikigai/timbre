@@ -5,11 +5,12 @@ interface HeaderProps {
   state: RunState;
   scoutConnected: boolean;
   runConnected: boolean;
+  onReset?: () => void;
 }
 
 const STAGE_ORDER = ["curate", "research", "write", "voice", "verify", "multiplex"] as const;
 
-export function Header({ state, scoutConnected, runConnected }: HeaderProps) {
+export function Header({ state, scoutConnected, runConnected, onReset }: HeaderProps) {
   return (
     <header className="sticky top-0 z-20 backdrop-blur-md bg-[color:var(--color-bg)]/70 border-b border-[color:var(--color-hairline)]">
       <div className="flex items-center justify-between px-6 py-3 gap-6">
@@ -85,6 +86,19 @@ export function Header({ state, scoutConnected, runConnected }: HeaderProps) {
             {runConnected ? "live" : scoutConnected ? "scout" : "offline"}
           </span>
         </div>
+
+        {/* Reset — shown only when a run is active */}
+        {onReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border border-[color:var(--color-hairline)] text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink)] hover:border-[color:var(--color-amber)]/40 hover:bg-[color:var(--color-amber)]/8 transition-colors"
+            aria-label="Reset run and return to topic picker"
+            title="Clear this run and start over"
+          >
+            Reset
+          </button>
+        )}
       </div>
     </header>
   );

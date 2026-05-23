@@ -11,6 +11,7 @@ export interface UseRunStateMachineResult {
   state: RunState;
   beat: DemoBeat;
   connected: boolean;
+  reset: () => void;
 }
 
 export function useRunStateMachine(
@@ -54,6 +55,7 @@ export function useRunStateMachine(
 
   const { connected } = useRunEvents(runId, handlers, opts);
   const beat = useMemo(() => deriveDemoBeat(state), [state]);
+  const reset = useMemo(() => () => dispatch({ type: "__reset__" } as unknown as AnyEvent), []);
 
-  return { state, beat, connected };
+  return { state, beat, connected, reset };
 }

@@ -27,11 +27,16 @@ function getDemoFlags() {
 export default function DemoPage() {
   const [runId, setRunId] = useState<string | null>(null);
   const flags = getDemoFlags();
-  const { state, beat, connected: runConnected } = useRunStateMachine(runId, {
+  const { state, beat, connected: runConnected, reset } = useRunStateMachine(runId, {
     demoCached: flags.demoCached,
     cacheFixture: flags.cacheFixture,
   });
   const { scoutState, connected: scoutConnected, scanning: scoutScanning } = useScoutState();
+
+  const handleReset = () => {
+    reset();
+    setRunId(null);
+  };
 
   // Click a Scout candidate → start live run with that title as the topic.
   const handleCandidateClick = async (c: Candidate) => {
@@ -53,6 +58,7 @@ export default function DemoPage() {
       state={state}
       scoutConnected={scoutConnected}
       runConnected={runConnected}
+      onReset={runId ? handleReset : undefined}
       leftPanel={
         <ScoutPanel
           scoutState={scoutState}
