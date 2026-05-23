@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { AppShell } from "../AppShell";
 import { ScoutPanel } from "../components/ScoutPanel";
+import { DemoHero } from "../components/DemoHero";
 import { RunControls } from "../components/RunControls";
 import { DiffView } from "../components/DiffView";
 import { MultiplexBoard } from "../components/MultiplexBoard";
@@ -38,7 +39,7 @@ export default function DemoPage() {
       centerContent={
         <div className="p-6 flex flex-col gap-6 min-h-full">
           {!runId ? (
-            <RunControls onRunStarted={setRunId} />
+            <DemoHero onRunStarted={setRunId} />
           ) : (
             <>
               <RunControls onRunStarted={setRunId} runId={runId} />
