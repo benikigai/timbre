@@ -18,11 +18,17 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
   const carousel = state.multiplexJobs.carousel;
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
-  // Radio + Veo mock state. Cards are visible whenever the run has reached
-  // multiplex; controls become interactive once it's done.
-  const [radioLen, setRadioLen] = useState<30 | 60 | 90>(60);
-  const [radioStatus, setRadioStatus] = useState<"idle" | "generating" | "done">("idle");
-  const [veoStatus, setVeoStatus] = useState<"idle" | "generating" | "done">("idle");
+  // Radio + Veo — real API calls. Controls become interactive once multiplex
+  // stage is reached; results stream in when the API returns.
+  const [radioLen, setRadioLen] = useState<30 | 60 | 90>(30);
+  const [radioStatus, setRadioStatus] = useState<"idle" | "generating" | "done" | "error">("idle");
+  const [radioAudio, setRadioAudio] = useState<string | null>(null);
+  const [radioScript, setRadioScript] = useState<string | null>(null);
+  const [radioError, setRadioError] = useState<string | null>(null);
+  const [veoStatus, setVeoStatus] = useState<"idle" | "generating" | "done" | "error">("idle");
+  const [veoUrl, setVeoUrl] = useState<string | null>(null);
+  const [veoError, setVeoError] = useState<string | null>(null);
+  const [veoLen, setVeoLen] = useState<5 | 8 | 15>(5);
   const multiplexActive = state.stages.multiplex.status === "active" || state.stages.multiplex.status === "done";
 
   if (!multiplexActive) return null;
@@ -45,15 +51,55 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
     return carousel.url.split(",").map((s) => s.trim());
   })();
 
-  const handleRadioGenerate = () => {
+  // Pull the article text to feed Radio + Veo.
+  const articleText = state.rewriteMd || state.draftMd || "";
+
+  const handleRadioGenerate = async () => {
     if (radioStatus === "generating") return;
     setRadioStatus("generating");
-    setTimeout(() => setRadioStatus("done"), 2400);
+    setRadioError(null);
+    setRadioAudio(null);
+    setRadioScript(null);
+    try {
+      const r = await fetch("/api/talk-radio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draft: articleText, length_seconds: radioLen }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 120)}`);
+      const data = (await r.json()) as { audio_b64: string; mime_type: string; script: string };
+      setRadioAudio(`data:${data.mime_type};base64,${data.audio_b64}`);
+      setRadioScript(data.script);
+      setRadioStatus("done");
+    } catch (e) {
+      setRadioError((e as Error).message);
+      setRadioStatus("error");
+    }
   };
-  const handleVeoGenerate = () => {
+
+  const handleVeoGenerate = async () => {
     if (veoStatus === "generating") return;
     setVeoStatus("generating");
-    setTimeout(() => setVeoStatus("done"), 3000);
+    setVeoError(null);
+    setVeoUrl(null);
+    try {
+      // Build a prompt from the article — first paragraph + style hint.
+      const firstPara = articleText.split(/\n+/).find((l) => l.trim().length > 40) ?? articleText.slice(0, 200);
+      const prompt = `A technical founder talking confidently to camera in a clean, sunlit office. Soft natural light, shallow depth of field, cinematic warmth, eye-level shot. Topic: ${firstPara.slice(0, 220)}`;
+      const r = await fetch("/api/veo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, length_seconds: veoLen }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 120)}`);
+      const data = (await r.json()) as { url: string | null };
+      if (!data.url) throw new Error("Veo returned no URL");
+      setVeoUrl(data.url);
+      setVeoStatus("done");
+    } catch (e) {
+      setVeoError((e as Error).message);
+      setVeoStatus("error");
+    }
   };
 
   return (
@@ -126,19 +172,19 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
             )}
           </GlassPanel>
 
-          {/* ── AI Talk Radio (Tier 2 mock) ──────────────────────────── */}
+          {/* ── AI Talk Radio (LIVE — Flash script + multi-speaker TTS) ── */}
           <GlassPanel active={radioStatus === "generating"} className="p-4 flex flex-col gap-3">
             <CardHeader
-              title="AI Talk Radio"
-              primitive="ai-studio · talk-radio agent"
-              status={radioStatus === "idle" ? "ready" : radioStatus}
-              tier2={true}
+              title="AI Talk Radio · Host + Caller"
+              primitive="gemini-3.5-flash → gemini-2.5-flash-preview-tts · multi-speaker (Kore + Puck)"
+              status={radioStatus}
+              tier2={false}
             />
             <InputPreview
               label="What goes into the host script"
               snippet={draftSnippet || "(final draft pending…)"}
             />
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
                 length
               </label>
@@ -162,7 +208,7 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
               <button
                 type="button"
                 onClick={handleRadioGenerate}
-                disabled={radioStatus === "generating"}
+                disabled={radioStatus === "generating" || !articleText}
                 className="ml-auto font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full bg-[color:var(--color-sage)]/15 border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/25 transition disabled:opacity-50"
               >
                 {radioStatus === "generating"
@@ -172,63 +218,104 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                   : "generate"}
               </button>
             </div>
-            {radioStatus === "done" ? (
+            {radioStatus === "done" && radioAudio ? (
               <div className="flex flex-col gap-2">
-                <audio controls className="w-full" src="">
+                <audio controls className="w-full" src={radioAudio}>
                   Your browser does not support audio playback.
                 </audio>
-                <p className="text-[10px] font-mono text-[color:var(--color-ink-mute)] italic">
-                  [Host] / [Caller] · ~{radioLen}s · would synthesize via AI Studio Talk Radio
-                </p>
+                {radioScript && (
+                  <details className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)]/40">
+                    <summary className="cursor-pointer px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink-dim)]">
+                      ▸ Script (real Flash output)
+                    </summary>
+                    <pre className="px-2.5 pb-2 text-[11px] text-[color:var(--color-ink-dim)] leading-snug whitespace-pre-wrap font-[family-name:var(--font-sans)]">
+                      {radioScript}
+                    </pre>
+                  </details>
+                )}
               </div>
+            ) : radioStatus === "generating" ? (
+              <p className="text-[11px] font-mono text-[color:var(--color-ink-dim)] italic">
+                Step 1: Flash → [Host]/[Caller] script · Step 2: multi-speaker TTS synthesis ({radioLen}s target)…
+              </p>
+            ) : radioStatus === "error" ? (
+              <p className="text-[11px] font-mono text-[color:var(--color-danger)]">{radioError}</p>
             ) : (
               <p className="text-[10px] font-mono text-[color:var(--color-ink-mute)] italic">
-                {radioStatus === "generating"
-                  ? `Adapting draft → host/caller script · synthesizing ${radioLen}s segment…`
-                  : "Tier 2 · mocked for demo. Real integration: ai-studio agent w/ duration param."}
+                Real Google API · Flash drafts script, multi-speaker TTS synthesizes two voices into one audio file.
               </p>
             )}
           </GlassPanel>
 
-          {/* ── Omni video (Veo) ─────────────────────────────────────── */}
+          {/* ── Omni video (Veo — LIVE) ──────────────────────────────── */}
           <GlassPanel active={veoStatus === "generating"} className="p-4 flex flex-col gap-3">
             <CardHeader
-              title="Omni video · 15s clip"
-              primitive="veo · gemini omni"
-              status={veoStatus === "idle" ? "ready" : veoStatus}
-              tier2={true}
+              title={`Omni video · ${veoLen}s clip`}
+              primitive="veo-2.0-generate-001 · gemini omni"
+              status={veoStatus}
+              tier2={false}
             />
             <InputPreview
-              label="What goes into Veo"
-              snippet={draftSnippet ? `Hero clip from: "${draftSnippet}"` : "(final draft pending…)"}
+              label="What goes into Veo (text prompt)"
+              snippet={draftSnippet ? `Founder-style talking head from: "${draftSnippet}"` : "(final draft pending…)"}
             />
-            {veoStatus === "done" ? (
-              <div className="aspect-video rounded-lg overflow-hidden border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)] flex items-center justify-center">
-                <span className="font-mono text-[10px] text-[color:var(--color-ink-mute)]">
-                  [veo placeholder — 15s clip from final draft]
+            <div className="flex items-center gap-3 flex-wrap">
+              <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+                length
+              </label>
+              <div className="flex gap-1">
+                {[5, 8, 15].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setVeoLen(n as 5 | 8 | 15)}
+                    disabled={veoStatus === "generating"}
+                    className={`font-mono text-[11px] px-2.5 py-1 rounded border transition ${
+                      veoLen === n
+                        ? "border-[color:var(--color-amber)]/50 text-[color:var(--color-amber)] bg-[color:var(--color-amber)]/10"
+                        : "border-[color:var(--color-hairline)] text-[color:var(--color-ink-dim)] hover:text-[color:var(--color-ink)]"
+                    }`}
+                  >
+                    {n}s
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={handleVeoGenerate}
+                disabled={veoStatus === "generating" || !articleText}
+                className="ml-auto font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full bg-[color:var(--color-sage)]/15 border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/25 transition disabled:opacity-50"
+              >
+                {veoStatus === "generating"
+                  ? "generating…"
+                  : veoStatus === "done"
+                  ? "regenerate"
+                  : "generate"}
+              </button>
+            </div>
+            {veoStatus === "done" && veoUrl ? (
+              <div className="aspect-video rounded-lg overflow-hidden border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)]">
+                <video controls src={veoUrl} className="w-full h-full" />
+              </div>
+            ) : veoStatus === "generating" ? (
+              <div className="aspect-video rounded-lg border border-dashed border-[color:var(--color-amber)]/40 bg-[color:var(--color-amber)]/5 flex items-center justify-center">
+                <span className="font-mono text-[11px] text-[color:var(--color-amber)] italic">
+                  Veo synthesizing {veoLen}s clip · ~30–90s wall time…
+                </span>
+              </div>
+            ) : veoStatus === "error" ? (
+              <div className="aspect-video rounded-lg border border-[color:var(--color-danger)]/40 bg-[color:var(--color-danger)]/5 flex items-center justify-center px-4">
+                <span className="font-mono text-[11px] text-[color:var(--color-danger)] text-center">
+                  {veoError}
                 </span>
               </div>
             ) : (
               <div className="aspect-video rounded-lg border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-surface)] flex items-center justify-center">
                 <span className="font-mono text-[10px] text-[color:var(--color-ink-mute)] italic">
-                  {veoStatus === "generating"
-                    ? "Veo generating 15s clip… (~30s synthesis on real API)"
-                    : "Tier 2 · click generate to mock"}
+                  Real Veo API · click generate · video proxied through backend auth
                 </span>
               </div>
             )}
-            <button
-              type="button"
-              onClick={handleVeoGenerate}
-              disabled={veoStatus === "generating"}
-              className="self-start font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full bg-[color:var(--color-sage)]/15 border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/25 transition disabled:opacity-50"
-            >
-              {veoStatus === "generating"
-                ? "generating…"
-                : veoStatus === "done"
-                ? "regenerate"
-                : "generate"}
-            </button>
           </GlassPanel>
         </div>
       </div>

@@ -6,6 +6,8 @@ import { eventsRouter } from "./routes/events.js";
 import { scoutRouter } from "./routes/scout.js";
 import { runsRouter } from "./routes/runs.js";
 import { refineRouter } from "./routes/refine.js";
+import { veoRouter } from "./routes/veo.js";
+import { talkRadioRouter } from "./routes/talkRadio.js";
 import type { HealthResponse } from "@timbre/shared";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..", "..");
@@ -53,6 +55,8 @@ app.use("/api", eventsRouter);
 app.use("/api/scout", scoutRouter);
 app.use("/api/runs", runsRouter);
 app.use("/api/refine", refineRouter);
+app.use("/api/veo", veoRouter);
+app.use("/api/talk-radio", talkRadioRouter);
 app.use(
   "/api/cache",
   express.static(CACHE_DIR, {
