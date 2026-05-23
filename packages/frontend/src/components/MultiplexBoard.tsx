@@ -25,6 +25,9 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
   const [radioAudio, setRadioAudio] = useState<string | null>(null);
   const [radioScript, setRadioScript] = useState<string | null>(null);
   const [radioError, setRadioError] = useState<string | null>(null);
+  const [radioDirection, setRadioDirection] = useState<string>("");
+  const [veoDirection, setVeoDirection] = useState<string>("");
+  const [showGeminiFallback, setShowGeminiFallback] = useState(false);
   const [veoStatus, setVeoStatus] = useState<"idle" | "generating" | "done" | "error">("idle");
   const [veoUrl, setVeoUrl] = useState<string | null>(null);
   const [veoError, setVeoError] = useState<string | null>(null);
@@ -69,7 +72,12 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
       const r = await fetch("/api/talk-radio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draft: articleText, length_seconds: radioLen }),
+        body: JSON.stringify({
+          draft: radioDirection
+            ? `${articleText}\n\n## Producer direction (user)\n\n${radioDirection}`
+            : articleText,
+          length_seconds: radioLen,
+        }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 120)}`);
       const data = (await r.json()) as { audio_b64: string; mime_type: string; script: string };
@@ -104,9 +112,10 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
     setVeoUrl(null);
     try {
       const firstPara = articleText.split(/\n+/).find((l) => l.trim().length > 40) ?? articleText.slice(0, 200);
+      const directionSuffix = veoDirection ? ` Director's note: ${veoDirection}.` : "";
       const prompt = avatarB64
-        ? `Animate this person talking confidently to camera. Soft natural light, eye-level shot, subtle gestures and lip movement, cinematic warmth. Speaking about: ${firstPara.slice(0, 220)}`
-        : `A technical founder talking confidently to camera in a clean, sunlit office. Soft natural light, shallow depth of field, cinematic warmth, eye-level shot. Topic: ${firstPara.slice(0, 220)}`;
+        ? `Animate this person talking confidently to camera. Soft natural light, eye-level shot, subtle gestures and lip movement, cinematic warmth. Speaking about: ${firstPara.slice(0, 220)}.${directionSuffix}`
+        : `A technical founder talking confidently to camera in a clean, sunlit office. Soft natural light, shallow depth of field, cinematic warmth, eye-level shot. Topic: ${firstPara.slice(0, 220)}.${directionSuffix}`;
       const r = await fetch("/api/veo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -223,6 +232,14 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
               label="What goes into the host script"
               snippet={draftSnippet || "(final draft pending…)"}
             />
+            <input
+              type="text"
+              value={radioDirection}
+              onChange={(e) => setRadioDirection(e.target.value)}
+              disabled={radioStatus === "generating"}
+              placeholder="direction (optional): 'more skeptical', 'lead with cost angle', 'softer tone'…"
+              className="w-full bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] focus:border-[color:var(--color-sage)]/50 rounded-lg px-3 py-2 text-[12px] text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-mute)] placeholder:italic outline-none transition disabled:opacity-50"
+            />
             <div className="flex items-center gap-3 flex-wrap">
               <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
                 length
@@ -297,6 +314,14 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
             <InputPreview
               label="What goes into Veo (text prompt)"
               snippet={draftSnippet ? `Founder-style talking head from: "${draftSnippet}"` : "(final draft pending…)"}
+            />
+            <input
+              type="text"
+              value={veoDirection}
+              onChange={(e) => setVeoDirection(e.target.value)}
+              disabled={veoStatus === "generating"}
+              placeholder="direction (optional): 'wider shot', 'sunset lighting', 'energetic gestures'…"
+              className="w-full bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] focus:border-[color:var(--color-sage)]/50 rounded-lg px-3 py-2 text-[12px] text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-mute)] placeholder:italic outline-none transition disabled:opacity-50"
             />
             {/* Avatar photo — Veo animates this as the visual anchor */}
             <div className="flex items-center gap-3 flex-wrap">
@@ -393,6 +418,58 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                 </span>
               </div>
             )}
+
+            {/* Gemini-app avatar fallback — for true Ben-likeness w/ lip-sync */}
+            <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)]/40 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowGeminiFallback((x) => !x)}
+                className="w-full text-left px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-sage)] hover:text-[color:var(--color-ink)] transition flex items-center justify-between"
+              >
+                <span>{showGeminiFallback ? "▾" : "▸"} Want true lip-sync? Use Gemini app avatar</span>
+                <span className="text-[color:var(--color-ink-mute)] normal-case tracking-normal">honest UX</span>
+              </button>
+              {showGeminiFallback && (
+                <div className="px-3 pb-3 flex flex-col gap-2 border-t border-[color:var(--color-hairline)] pt-2">
+                  <p className="text-[11px] text-[color:var(--color-ink-dim)] leading-snug">
+                    Veo animates a photo as a scene but doesn't lip-sync to specific audio. For a real talking-head of you, use the Gemini app's avatar feature:
+                  </p>
+                  <ol className="text-[11px] text-[color:var(--color-ink-dim)] list-decimal pl-4 leading-relaxed flex flex-col gap-1">
+                    <li>
+                      Open{" "}
+                      <a
+                        href="https://gemini.google.com"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[color:var(--color-amber)] hover:underline"
+                      >
+                        gemini.google.com
+                      </a>{" "}
+                      (or the Gemini mobile app)
+                    </li>
+                    <li>Paste this prompt, swap [TOPIC] for your article's headline:</li>
+                  </ol>
+                  <div className="rounded border border-[color:var(--color-sage)]/30 bg-[color:var(--color-bg)] p-2 flex flex-col gap-1.5">
+                    <code className="text-[11px] text-[color:var(--color-ink)] font-mono leading-snug whitespace-pre-wrap break-words">
+                      @Benjamin.Shyong make me talk for {veoLen} seconds about [TOPIC] — the highlights from the latest article, conversational tone, eye-level shot
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const prompt = `@Benjamin.Shyong make me talk for ${veoLen} seconds about [TOPIC] — the highlights from the latest article, conversational tone, eye-level shot`;
+                        navigator.clipboard?.writeText(prompt).catch(() => {});
+                      }}
+                      className="self-start font-mono text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/10 transition"
+                    >
+                      copy prompt
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-[color:var(--color-ink-mute)] font-mono italic">
+                    Gemini returns the clip in-app. Save it, then drop into the carousel via "attach avatar photo" if you want it as the visual anchor for a longer Veo scene.
+                  </p>
+                </div>
+              )}
+            </div>
           </GlassPanel>
         </div>
       </div>

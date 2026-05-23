@@ -9,6 +9,7 @@ import { refineRouter } from "./routes/refine.js";
 import { veoRouter } from "./routes/veo.js";
 import { talkRadioRouter } from "./routes/talkRadio.js";
 import { voiceProfileRouter } from "./routes/voiceProfile.js";
+import { multiplexRefineRouter } from "./routes/multiplexRefine.js";
 import type { HealthResponse } from "@timbre/shared";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..", "..");
@@ -56,6 +57,7 @@ app.use("/api", eventsRouter);
 app.use("/api/scout", scoutRouter);
 app.use("/api/runs", runsRouter);
 app.use("/api/voice-profile", voiceProfileRouter);
+app.use("/api/multiplex", multiplexRefineRouter);
 app.use("/api/refine", refineRouter);
 app.use("/api/veo", veoRouter);
 app.use("/api/talk-radio", talkRadioRouter);
