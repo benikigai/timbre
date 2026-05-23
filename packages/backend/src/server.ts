@@ -14,9 +14,21 @@ const STARTED_AT = new Date().toISOString();
 const BUILD = "back-mvp-001";
 
 const app = express();
-// CORS: explicit allowlist, plus any *.vercel.app or *.tail365038.ts.net origin
-// (covers Vercel previews/prod + Tailscale Funnel access without re-deploys).
-const allowExtraSuffixes = [".vercel.app", ".tail365038.ts.net"];
+// CORS: explicit allowlist, plus any *.vercel.app, *.tail365038.ts.net, or
+// usetimbre.ai origin (covers Vercel previews/prod + Tailscale Funnel access
+// without re-deploys). Also handles Chrome's Private Network Access preflight
+// (Access-Control-Request-Private-Network) since backend resolves to a
+// Tailscale IP — without ACA-PN:true, Chrome blocks cross-origin fetches
+// from public Vercel pages to the private Tailscale address space.
+const allowExtraSuffixes = [".vercel.app", ".tail365038.ts.net", "usetimbre.ai"];
+app.use((req, res, next) => {
+  // Always advertise that we accept Private Network Access — required for
+  // browsers fetching from public origins to local/private endpoints.
+  if (req.headers["access-control-request-private-network"]) {
+    res.setHeader("Access-Control-Allow-Private-Network", "true");
+  }
+  next();
+});
 app.use(
   cors({
     origin: (origin, cb) => {

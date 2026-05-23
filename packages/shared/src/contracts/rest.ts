@@ -2,19 +2,21 @@
 import { z } from 'zod';
 import { CandidateSchema, AlertSchema, ScoutTickResultSchema } from './files.js';
 
-export const RunRequestSchema = z
-  .object({
-    topic: z.string().optional(),
-    candidate_id: z.string().optional(),
-    mode: z.enum(['live', 'cached']).default('live'),
-    cache_fixture: z.string().optional(),
-  })
-  .refine((d) => d.topic || d.candidate_id, {
+const RunRequestBaseSchema = z.object({
+  topic: z.string().optional(),
+  candidate_id: z.string().optional(),
+  mode: z.enum(['live', 'cached']).default('live'),
+  cache_fixture: z.string().optional(),
+});
+type RunRequestBase = z.infer<typeof RunRequestBaseSchema>;
+export const RunRequestSchema = RunRequestBaseSchema
+  .refine((d: RunRequestBase) => Boolean(d.topic) || Boolean(d.candidate_id), {
     message: 'topic_or_candidate_required',
   })
-  .refine((d) => d.mode !== 'cached' || !!d.cache_fixture, {
-    message: 'cache_fixture_required_when_mode_cached',
-  });
+  .refine(
+    (d: RunRequestBase) => d.mode !== 'cached' || Boolean(d.cache_fixture),
+    { message: 'cache_fixture_required_when_mode_cached' },
+  );
 export type RunRequest = z.infer<typeof RunRequestSchema>;
 
 export const RunResponseSchema = z.object({ run_id: z.string() });

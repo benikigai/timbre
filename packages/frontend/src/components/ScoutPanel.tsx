@@ -1,4 +1,4 @@
-import type { ScoutStateResponse } from "@timbre/shared/contracts";
+import type { ScoutStateResponse, Candidate } from "@timbre/shared/contracts";
 import { PulsingDot } from "../primitives/PulsingDot";
 
 interface ScoutPanelProps {
@@ -77,7 +77,7 @@ export function ScoutPanel({ scoutState }: ScoutPanelProps) {
           Candidates ({candidates.length})
         </div>
         <ul className="flex flex-col gap-2">
-          {candidates.slice(0, 10).map((c) => (
+          {candidates.slice(0, 10).map((c: Candidate) => (
             <li key={c.id} className="border-b border-[color:var(--color-hairline)] pb-2 last:border-b-0">
               <a
                 href={c.url}

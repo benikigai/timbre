@@ -2,7 +2,7 @@
 // Per specs/02-front.md §4 — the entire UI derives from event-log replay.
 // Re-deriving from a replayed log on reconnect gives correct rehydration for free.
 
-import type { AnyEvent, StageId } from "@timbre/shared/contracts";
+import type { AnyEvent, Candidate, StageId } from "@timbre/shared/contracts";
 import type { RunState, StageState } from "./runStateTypes.js";
 import { initialRunState } from "./runStateTypes.js";
 
@@ -137,7 +137,7 @@ export function runReducer(s: RunState, e: AnyEvent | { type: "__reset__" }): Ru
         thoughts: pushThought(
           s.thoughts,
           "curate",
-          `Selected top 3: ${e.data.top.map((c) => c.title).join(" · ")}`,
+          `Selected top 3: ${e.data.top.map((c: Candidate) => c.title).join(" · ")}`,
         ),
       };
 

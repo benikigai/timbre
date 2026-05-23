@@ -29,7 +29,7 @@ export function useScoutState(): UseScoutStateResult {
   const handlers = useMemo(
     () => ({
       "scout.tick_completed": (tick: ScoutTickResult) => {
-        setScoutState((prev) => {
+        setScoutState((prev: ScoutStateResponse | null) => {
           if (!prev) {
             return {
               latest_tick: tick,
