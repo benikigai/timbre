@@ -39,13 +39,14 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const multiplexActive = state.stages.multiplex.status === "active" || state.stages.multiplex.status === "done";
 
-  if (!multiplexActive) return null;
-
+  // ALL hooks above any early return (rules-of-hooks).
   // Pull a snippet of the final draft for the input-preview blocks.
   const draftSnippet = useMemo(() => {
     const text = state.rewriteMd || state.draftMd || "";
     return text.split(/\n+/).filter(Boolean).slice(0, 2).join(" ").slice(0, 220);
   }, [state.rewriteMd, state.draftMd]);
+
+  if (!multiplexActive) return null;
 
   // Parse carousel URL list (may be packed JSON, comma-separated, or single URL).
   const carouselUrls: string[] = (() => {
