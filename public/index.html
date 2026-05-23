@@ -206,17 +206,34 @@
         grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
       }
       .stage-card {
-        padding: 1.25rem 1.25rem 1.4rem;
+        position: relative; overflow: hidden;
+        padding: 1.5rem 1.4rem 1.5rem;
         background: var(--surface);
         border: 1px solid var(--hairline);
         border-radius: 1rem;
         backdrop-filter: blur(12px);
-        transition: border-color 280ms, background 280ms, transform 280ms;
+        transition: border-color 280ms, background 280ms, transform 280ms, box-shadow 280ms;
       }
-      .stage-card:hover { border-color: rgba(232, 165, 116, 0.3); background: rgba(255,255,255,0.05); transform: translateY(-1px); }
-      .stage-card .num { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-mute); letter-spacing: 0.12em; }
-      .stage-card .name { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; margin: 0.4rem 0 0.55rem; color: var(--ink); letter-spacing: -0.01em; }
-      .stage-card .desc { font-family: var(--font-body); font-size: 0.88rem; line-height: 1.45; color: var(--ink-dim); margin: 0; }
+      .stage-card::before {
+        content: attr(data-num); position: absolute; top: -0.5rem; right: 0.5rem;
+        font-family: var(--font-display); font-weight: 200;
+        font-size: 5.5rem; line-height: 1; letter-spacing: -0.04em;
+        background: linear-gradient(135deg, var(--sage) 0%, var(--amber) 100%);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+        opacity: 0.12; pointer-events: none; user-select: none;
+        transition: opacity 320ms;
+      }
+      .stage-card:hover {
+        border-color: rgba(232, 165, 116, 0.4);
+        background: rgba(255,255,255,0.055);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px -12px rgba(232, 165, 116, 0.2);
+      }
+      .stage-card:hover::before { opacity: 0.2; }
+      .stage-card .num { font-family: var(--font-mono); font-size: 0.7rem; color: var(--amber); letter-spacing: 0.12em; position: relative; z-index: 1; }
+      .stage-card .name { font-family: var(--font-display); font-weight: 500; font-size: 1.3rem; margin: 0.5rem 0 0.65rem; color: var(--ink); letter-spacing: -0.015em; position: relative; z-index: 1; }
+      .stage-card .desc { font-family: var(--font-body); font-size: 0.875rem; line-height: 1.5; color: var(--ink-dim); margin: 0; position: relative; z-index: 1; }
 
       /* ───── primitives ───── */
       .primitives-grid {
@@ -359,37 +376,37 @@
           </div>
 
           <div class="stage-cards">
-            <div class="stage-card">
+            <div class="stage-card" data-num="01">
               <span class="num">01</span>
               <h3 class="name">Scout</h3>
               <p class="desc">Watches your sources every hour. Persistent file tree. Even at 3 a.m.</p>
             </div>
-            <div class="stage-card">
+            <div class="stage-card" data-num="02">
               <span class="num">02</span>
               <h3 class="name">Curate</h3>
               <p class="desc">Picks the topic worth your weekend from what Scout surfaced overnight.</p>
             </div>
-            <div class="stage-card">
+            <div class="stage-card" data-num="03">
               <span class="num">03</span>
               <h3 class="name">Research</h3>
               <p class="desc">Plans the work, asks you to edit the plan, then searches and cites. Shows its thinking.</p>
             </div>
-            <div class="stage-card">
+            <div class="stage-card" data-num="04">
               <span class="num">04</span>
               <h3 class="name">Write</h3>
               <p class="desc">Drafts the article from the evidence pack. Charts inline. Sources attached.</p>
             </div>
-            <div class="stage-card">
+            <div class="stage-card" data-num="05">
               <span class="num">05</span>
               <h3 class="name">Voice</h3>
               <p class="desc">Rewrites span by span until it sounds like you. Every diff has a reason.</p>
             </div>
-            <div class="stage-card">
+            <div class="stage-card" data-num="06">
               <span class="num">06</span>
               <h3 class="name">Verify</h3>
               <p class="desc">Catches every metric Voice broke. Re-grounds claims with fresh sources. The fight.</p>
             </div>
-            <div class="stage-card">
+            <div class="stage-card" data-num="07">
               <span class="num">07</span>
               <h3 class="name">Multiplex</h3>
               <p class="desc">Fans the post out — TTS bulletin, social carousel, optional radio segment.</p>
