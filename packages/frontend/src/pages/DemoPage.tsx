@@ -5,6 +5,7 @@ import { ScoutPanel } from "../components/ScoutPanel";
 import { DemoHero } from "../components/DemoHero";
 import { RunControls } from "../components/RunControls";
 import { DiffView } from "../components/DiffView";
+import { ActivityFeed } from "../components/ActivityFeed";
 import { MultiplexBoard } from "../components/MultiplexBoard";
 import { PlanApprovalModal } from "../components/PlanApprovalModal";
 import { VerifyOverlay } from "../components/VerifyOverlay";
@@ -44,6 +45,7 @@ export default function DemoPage() {
             <>
               <RunControls onRunStarted={setRunId} runId={runId} />
               <DiffView state={state} />
+              <ActivityFeed state={state} />
               <MultiplexBoard state={state} />
               {beat === "proof" && <ProofBeat />}
             </>
