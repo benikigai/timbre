@@ -132,13 +132,14 @@ Multiplex (parallel fan-out)
 
 ## 6. Sandbox→UI bridge (D4 detail)
 
-Scout's last action every tick — appended to its SKILL.md tick protocol:
+Scout's last action every tick — embedded in `timbre-scout-config/AGENTS.md` §"Tick output contract":
 
 ```bash
 echo "<<<TIMBRE_TICK_START>>>"
 echo '{"tick_id":"'"$(uuidgen)"'","at":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
-echo "---CANDIDATES---"
+echo "---CANDIDATES_COUNT---"
 jq -c '.candidates | length' /workspace/candidates.json
+echo "---CANDIDATES_HEAD---"
 jq -c '.candidates[0:5]' /workspace/candidates.json
 echo "---ALERTS---"
 jq -c '.alerts' /workspace/alerts.json
@@ -147,7 +148,7 @@ ls -la --time-style=full-iso /workspace
 echo "<<<TIMBRE_TICK_END>>>"
 ```
 
-**Backend parsing rule:** find the last `<<<TIMBRE_TICK_START>>>…<<<TIMBRE_TICK_END>>>` block in `interaction.output_text`, split on `---SECTION---` markers, JSON-parse each block. If markers missing → log + fall back to last successful `scout/state` snapshot.
+**Backend parsing rule:** find the last `<<<TIMBRE_TICK_START>>>…<<<TIMBRE_TICK_END>>>` block in `interaction.output_text`, split on `---SECTION---` markers, JSON-parse each section (exactly one JSON value per section). If markers missing or JSON parse fails → log `scout.tick_error` and fall back to last successful `scout/state` snapshot.
 
 The `ls -la` block is the **cold-open prop**: surface verbatim in the Scout panel.
 

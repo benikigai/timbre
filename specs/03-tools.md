@@ -95,14 +95,16 @@ Default 8 sources committed in skeleton. Edit before Sat 2pm kickoff:
 
 | ID | Type | Target | Why |
 |---|---|---|---|
-| `hn-frontpage` | hn | `news` | High-signal tech aggregator |
-| `hn-newest` | hn | `newest` (>20 pts filter) | Catches emerging threads early |
-| `arxiv-cs-ai` | arxiv | `cs.AI` | Research first-mover |
-| `arxiv-cs-lg` | arxiv | `cs.LG` | ML methods |
-| `rss-anthropic` | rss | anthropic.com/news | Direct from competitor |
-| `rss-openai` | rss | openai.com/blog | Direct from competitor |
-| `rss-deepmind` | rss | deepmind.google/blog | Direct from event host |
-| `x-karpathy` | x | `@karpathy` | High-signal individual |
+| `hn-frontpage` | `hn_tag` | `news` (`min_points: 100`) | High-signal tech aggregator |
+| `hn-newest` | `hn_tag` | `newest` (`min_points: 20`) | Catches emerging threads early |
+| `arxiv-cs-ai` | `arxiv` | `cs.AI` | Research first-mover |
+| `arxiv-cs-lg` | `arxiv` | `cs.LG` | ML methods |
+| `rss-anthropic` | `rss` | anthropic.com/news | Direct from competitor |
+| `rss-openai` | `rss` | openai.com/blog | Direct from competitor |
+| `rss-deepmind` | `rss` | deepmind.google/blog | Direct from event host |
+| `x-karpathy` | `x_user` | `@karpathy` | High-signal individual (skipped if no API access — see `source_scanning/SKILL.md`) |
+
+Type names match `source_scanning/SKILL.md` exactly (`rss`, `hn_tag`, `arxiv`, `x_user`). Diverging type names = silent skip at scan time.
 
 Tune for the founder's actual reading habits before Scout kickoff. The defaults are demo-safe but not personalized.
 
