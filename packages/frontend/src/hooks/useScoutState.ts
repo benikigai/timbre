@@ -14,13 +14,35 @@ export function useScoutState(): UseScoutStateResult {
 
   useEffect(() => {
     let cancelled = false;
-    getScoutState()
-      .then((s) => {
-        if (!cancelled) setScoutState(s);
-      })
-      .catch(() => {
-        // Backend offline or no scout data — leave null, ScoutPanel handles empty state.
-      });
+    (async () => {
+      try {
+        const live = await getScoutState();
+        if (!cancelled && live.candidates.length > 0) {
+          setScoutState(live);
+          return;
+        }
+        // Empty live state → load the committed fallback so the panel is never bare.
+        try {
+          const r = await fetch("/api/cache/scout-state.json");
+          if (r.ok && !cancelled) {
+            const fallback = (await r.json()) as ScoutStateResponse;
+            setScoutState(fallback);
+          } else if (!cancelled && live) {
+            setScoutState(live);
+          }
+        } catch {
+          if (!cancelled) setScoutState(live);
+        }
+      } catch {
+        // Backend offline: try fallback alone.
+        try {
+          const r = await fetch("/api/cache/scout-state.json");
+          if (r.ok && !cancelled) setScoutState((await r.json()) as ScoutStateResponse);
+        } catch {
+          /* leave null */
+        }
+      }
+    })();
     return () => {
       cancelled = true;
     };

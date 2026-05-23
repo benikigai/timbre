@@ -155,15 +155,13 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
         <div className="rounded-3xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] backdrop-blur-md p-6 md:p-8 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
-              Advanced · live API
+              Live API · real Gemini calls
             </p>
             <h2 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl leading-tight tracking-tight">
               Run your own topic
             </h2>
             <p className="text-[color:var(--color-ink-dim)] text-sm leading-relaxed">
-              Hits the real Gemini Antigravity + Deep Research APIs. Live
-              Curate (~6s) + Research plan (~14s) + plan-approval gate, then
-              hands off to cached replay for the rest. Tokens accrue.
+              Type a topic below, <em className="not-italic text-[color:var(--color-amber)]">or click any of Scout's top-5 candidates on the left</em> to write about it. Hits real Gemini Antigravity (Curate ~6s) + Deep Research (~14s) APIs, then plan-approval gate, then cached replay for Write/Voice/Verify. Tokens accrue.
             </p>
           </div>
           <RunControls onRunStarted={onRunStarted} />
