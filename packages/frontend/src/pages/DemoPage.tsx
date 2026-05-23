@@ -9,6 +9,7 @@ import { DiffView } from "../components/DiffView";
 import { ActivityFeed } from "../components/ActivityFeed";
 import { MultiplexBoard } from "../components/MultiplexBoard";
 import { PlanApprovalModal } from "../components/PlanApprovalModal";
+import { VerifyOverlay } from "../components/VerifyOverlay";
 import { EditableDraft } from "../components/EditableDraft";
 import { ProofBeat } from "../components/ProofBeat";
 import { useRunStateMachine } from "../hooks/useRunStateMachine";
@@ -82,7 +83,7 @@ export default function DemoPage() {
           )}
         </div>
       }
-      overlays={<PlanApprovalModal state={state} runId={runId} />}
+      overlays={<><PlanApprovalModal state={state} runId={runId} /><VerifyOverlay state={state} /></>}
     />
   );
 }
