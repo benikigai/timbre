@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Timbre — your voice, on autopilot</title>
-    <meta name="description" content="A multi-agent content engine that monitors your industry, researches what matters, and publishes in your voice." />
+    <title>Timbre — two agents fight so your voice survives</title>
+    <meta name="description" content="A multi-agent content engine for technical founders. Researches what matters, writes in your voice, and verifies it didn't lie to sound better." />
     <meta name="theme-color" content="#0D110F" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,19 +16,17 @@
         /* base — warm ink with subtle green undertone */
         --bg: #0D110F;
         --ink: #F2EFE5;
-        --ink-dim: rgba(242, 239, 229, 0.6);
-        --ink-mute: rgba(242, 239, 229, 0.36);
+        --ink-dim: rgba(242, 239, 229, 0.62);
+        --ink-mute: rgba(242, 239, 229, 0.38);
         --hairline: rgba(255, 255, 255, 0.07);
         --surface: rgba(255, 255, 255, 0.035);
 
-        /* timbre palette — sage anchor + amber warmth + gold highlight */
+        /* timbre palette */
         --sage: #7FA98B;
         --sage-deep: #5C8170;
         --amber: #E8A574;
         --amber-hot: #D89254;
         --gold: #F4D8A0;
-
-        /* gradient stops used for headline + spark + active glow */
         --grad-1: var(--sage);
         --grad-2: var(--amber);
         --grad-3: var(--gold);
@@ -41,8 +39,9 @@
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-body); overflow-x: hidden; }
       body { font-feature-settings: "ss01", "ss02", "cv01"; -webkit-font-smoothing: antialiased; }
+      ::selection { background: rgba(232, 165, 116, 0.3); color: var(--ink); }
 
-      /* ───── aurora background (subdued: tighter palette, slower drift, lower opacity) ───── */
+      /* ───── aurora ───── */
       .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
       .aurora::before, .aurora::after {
         content: ""; position: absolute; inset: -20%; filter: blur(100px);
@@ -62,33 +61,34 @@
         animation: drift-b 50s ease-in-out infinite alternate;
         mix-blend-mode: screen;
       }
-      @keyframes drift-a {
-        0%   { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(6%, -4%) scale(1.1); }
-      }
-      @keyframes drift-b {
-        0%   { transform: translate(0, 0) scale(1.08); }
-        100% { transform: translate(-7%, 5%) scale(1); }
-      }
-      /* darkening film over the aurora so text stays readable */
+      @keyframes drift-a { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(6%, -4%) scale(1.1); } }
+      @keyframes drift-b { 0% { transform: translate(0, 0) scale(1.08); } 100% { transform: translate(-7%, 5%) scale(1); } }
       .aurora-veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
         background:
           radial-gradient(ellipse at center, transparent 0%, rgba(13,17,15,0.55) 60%, rgba(13,17,15,0.92) 100%),
-          linear-gradient(180deg, rgba(13,17,15,0.4) 0%, rgba(13,17,15,0.0) 30%, rgba(13,17,15,0.5) 100%);
+          linear-gradient(180deg, rgba(13,17,15,0.4) 0%, rgba(13,17,15,0.0) 30%, rgba(13,17,15,0.7) 100%);
       }
-      /* grain */
       .grain { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       }
 
-      /* ───── layout ───── */
+      /* ───── page layout ───── */
       .page { position: relative; z-index: 3; min-height: 100vh; display: flex; flex-direction: column; }
-      header.nav { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 2.5rem; }
+
+      header.nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1.5rem 2.5rem;
+        position: sticky; top: 0; z-index: 20;
+        backdrop-filter: blur(20px);
+        background: rgba(13, 17, 15, 0.6);
+        border-bottom: 1px solid var(--hairline);
+      }
       .brand { display: flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; font-size: 1.05rem; }
       .brand .spark { width: 18px; height: 18px; display: inline-block; }
       .nav-right { display: flex; align-items: center; gap: 1.5rem; }
       .nav-right a { color: var(--ink-dim); text-decoration: none; font-size: 0.875rem; transition: color 200ms; }
       .nav-right a:hover { color: var(--ink); }
+
       .pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem; border-radius: 999px;
         font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.04em;
         background: var(--surface); border: 1px solid var(--hairline); color: var(--ink-dim); backdrop-filter: blur(12px);
@@ -96,50 +96,74 @@
       .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px var(--amber); animation: pulse 1.8s ease-in-out infinite; }
       @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
 
-      main.hero { flex: 1; display: grid; place-items: center; padding: 2rem 2.5rem 4rem; }
-      .hero-inner { max-width: 64rem; width: 100%; text-align: center; }
-
-      .wordmark { font-family: var(--font-display); font-weight: 300;
-        font-size: clamp(4rem, 14vw, 11rem); line-height: 0.92; letter-spacing: -0.04em;
-        margin: 0 0 1.75rem; color: var(--ink);
+      /* ───── hero ───── */
+      .hero {
+        padding: 8rem 2.5rem 6rem;
+        display: grid; place-items: center;
+        text-align: center;
       }
-      .wordmark .gradient {
+      .hero-inner { max-width: 56rem; width: 100%; }
+
+      .eyebrow {
+        font-family: var(--font-mono); font-size: 0.72rem;
+        color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase;
+        margin: 0 0 1.5rem;
+      }
+
+      .headline {
+        font-family: var(--font-display); font-weight: 300;
+        font-size: clamp(2.5rem, 7.5vw, 6rem);
+        line-height: 1.02; letter-spacing: -0.03em;
+        margin: 0 0 2rem; color: var(--ink);
+      }
+      .headline em { font-style: italic; font-weight: 400;
         background: linear-gradient(135deg, var(--sage) 0%, var(--amber) 55%, var(--gold) 100%);
         background-size: 200% 200%;
         -webkit-background-clip: text; background-clip: text;
         -webkit-text-fill-color: transparent; color: transparent;
-        animation: shimmer 8s ease-in-out infinite;
+        animation: shimmer 9s ease-in-out infinite;
       }
-      @keyframes shimmer {
-        0%, 100% { background-position: 0% 50%; }
-        50%      { background-position: 100% 50%; }
-      }
+      @keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 
-      .tagline { font-family: var(--font-display); font-weight: 300;
-        font-size: clamp(1.25rem, 2.4vw, 1.875rem); line-height: 1.35; letter-spacing: -0.015em;
-        color: var(--ink); opacity: 0.92; max-width: 38rem; margin: 0 auto 2.5rem;
+      .deck {
+        font-family: var(--font-display); font-weight: 300;
+        font-size: clamp(1.05rem, 1.95vw, 1.35rem);
+        line-height: 1.55; letter-spacing: -0.01em;
+        color: var(--ink); opacity: 0.82;
+        max-width: 40rem; margin: 0 auto 2.5rem;
       }
-      .tagline em { font-style: normal;
-        background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
-        -webkit-background-clip: text; background-clip: text;
-        -webkit-text-fill-color: transparent; color: transparent;
-      }
+      .deck strong { font-weight: 500; color: var(--ink); opacity: 1; }
 
-      /* glass card */
-      .card { display: inline-block; padding: 1rem 1.5rem; border-radius: 999px;
+      .status-card { display: inline-block; padding: 0.9rem 1.5rem; border-radius: 999px;
         background: var(--surface); border: 1px solid var(--hairline); backdrop-filter: blur(20px);
         font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-dim); letter-spacing: 0.02em;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
       }
-      .card .live { color: var(--amber); }
-      .card .sep { color: var(--ink-mute); margin: 0 0.75rem; }
+      .status-card .live { color: var(--amber); }
+      .status-card .sep { color: var(--ink-mute); margin: 0 0.75rem; }
 
-      /* pipeline visualization */
-      .pipeline { margin: 4rem auto 0; max-width: 56rem; width: 100%; padding: 0 1rem; }
-      .pipeline-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-mute);
-        letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 1rem; text-align: center;
+      /* ───── section frames ───── */
+      section.block { padding: 6rem 2.5rem; }
+      .section-inner { max-width: 64rem; margin: 0 auto; }
+      .section-label {
+        font-family: var(--font-mono); font-size: 0.72rem;
+        color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase;
+        margin-bottom: 1rem; text-align: center;
       }
-      .stages { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+      .section-title {
+        font-family: var(--font-display); font-weight: 300;
+        font-size: clamp(1.75rem, 4.5vw, 3rem);
+        line-height: 1.1; letter-spacing: -0.025em;
+        color: var(--ink); margin: 0 0 3rem; text-align: center;
+      }
+      .section-title em { font-style: italic; color: var(--sage); }
+
+      /* ───── pipeline (animated row + descriptive cards) ───── */
+      .pipeline-row {
+        max-width: 56rem; margin: 0 auto 3.5rem;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 0.5rem; flex-wrap: wrap;
+      }
       .stage { display: flex; align-items: center; gap: 0.6rem; flex: 1 1 auto; min-width: 0; }
       .stage-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
         background: var(--sage);
@@ -158,14 +182,12 @@
       }
       @keyframes stage-pulse {
         0%, 12%, 100% {
-          transform: scale(1);
-          background: var(--sage);
+          transform: scale(1); background: var(--sage);
           box-shadow: 0 0 6px rgba(127, 169, 139, 0.45), inset 0 0 3px rgba(232, 165, 116, 0.3);
           filter: brightness(1);
         }
         4%, 8% {
-          transform: scale(1.85);
-          background: var(--amber);
+          transform: scale(1.85); background: var(--amber);
           box-shadow: 0 0 18px rgba(232, 165, 116, 0.95), 0 0 36px rgba(216, 146, 84, 0.55), 0 0 60px rgba(244, 216, 160, 0.3);
           filter: brightness(1.55);
         }
@@ -179,39 +201,94 @@
         4%, 8% { color: var(--amber); transform: translateX(2px); }
       }
 
-      /* primitives badges */
-      .primitives { margin: 4rem auto 0; max-width: 48rem; text-align: center; }
-      .primitives-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-mute);
-        letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 1.25rem;
+      .stage-cards {
+        display: grid; gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
       }
-      .primitives-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-      .primitive { padding: 0.45rem 0.85rem; border-radius: 999px;
-        background: var(--surface); border: 1px solid rgba(127, 169, 139, 0.18); backdrop-filter: blur(10px);
-        font-family: var(--font-body); font-size: 0.78rem; color: var(--ink-dim);
-        transition: border-color 240ms, color 240ms;
+      .stage-card {
+        padding: 1.25rem 1.25rem 1.4rem;
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        transition: border-color 280ms, background 280ms, transform 280ms;
       }
-      .primitive:hover { border-color: rgba(232, 165, 116, 0.35); color: var(--ink); }
-      .primitive strong { color: var(--ink); font-weight: 500; }
+      .stage-card:hover { border-color: rgba(232, 165, 116, 0.3); background: rgba(255,255,255,0.05); transform: translateY(-1px); }
+      .stage-card .num { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-mute); letter-spacing: 0.12em; }
+      .stage-card .name { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; margin: 0.4rem 0 0.55rem; color: var(--ink); letter-spacing: -0.01em; }
+      .stage-card .desc { font-family: var(--font-body); font-size: 0.88rem; line-height: 1.45; color: var(--ink-dim); margin: 0; }
 
-      footer.foot { padding: 2rem 2.5rem; text-align: center; font-family: var(--font-mono);
+      /* ───── primitives ───── */
+      .primitives-grid {
+        display: grid; gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+      }
+      .primitive-card {
+        padding: 1.1rem 1.25rem;
+        background: var(--surface);
+        border: 1px solid rgba(127, 169, 139, 0.18);
+        border-radius: 0.875rem;
+        backdrop-filter: blur(10px);
+        transition: border-color 280ms, background 280ms;
+      }
+      .primitive-card:hover { border-color: rgba(232, 165, 116, 0.35); background: rgba(255,255,255,0.045); }
+      .primitive-card .name { font-family: var(--font-display); font-weight: 500; font-size: 0.92rem; color: var(--ink); display: block; letter-spacing: -0.005em; }
+      .primitive-card .brag { font-family: var(--font-body); font-size: 0.82rem; line-height: 1.4; color: var(--ink-dim); margin: 0.35rem 0 0; }
+
+      /* ───── prose section ───── */
+      .prose {
+        max-width: 42rem; margin: 0 auto;
+        font-family: var(--font-display); font-weight: 300;
+        font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+        line-height: 1.65; letter-spacing: -0.005em;
+        color: var(--ink-dim);
+      }
+      .prose p { margin: 0 0 1.4rem; }
+      .prose p:last-child { margin-bottom: 0; }
+      .prose strong { color: var(--ink); font-weight: 400; }
+      .prose em { color: var(--ink); font-style: italic; font-weight: 400; }
+      .prose .lead-line { color: var(--ink); font-size: 1.15em; font-weight: 400; }
+
+      /* ───── closing quote ───── */
+      .closing {
+        padding: 7rem 2.5rem 4rem; text-align: center;
+      }
+      .closing blockquote {
+        max-width: 36rem; margin: 0 auto;
+        font-family: var(--font-display); font-weight: 200; font-style: italic;
+        font-size: clamp(1.5rem, 3.4vw, 2.25rem);
+        line-height: 1.3; letter-spacing: -0.02em;
+        color: var(--ink); opacity: 0.92;
+      }
+      .closing .attrib {
+        margin: 1.5rem auto 0; font-family: var(--font-mono); font-size: 0.72rem;
+        color: var(--ink-mute); letter-spacing: 0.16em; text-transform: uppercase;
+      }
+
+      /* ───── footer ───── */
+      footer.foot { padding: 2.5rem 2.5rem 3.5rem; text-align: center; font-family: var(--font-mono);
         font-size: 0.72rem; color: var(--ink-mute); letter-spacing: 0.04em;
+        border-top: 1px solid var(--hairline);
       }
       footer.foot a { color: var(--ink-dim); text-decoration: none; transition: color 200ms; }
       footer.foot a:hover { color: var(--ink); }
+      footer.foot .sep { margin: 0 0.75rem; opacity: 0.5; }
 
       /* reduce motion */
       @media (prefers-reduced-motion: reduce) {
-        .aurora::before, .aurora::after, .wordmark .gradient, .pill .dot,
+        .aurora::before, .aurora::after, .headline em, .pill .dot,
         .stage-dot, .stage-name, .stage-arrow { animation: none !important; }
       }
 
       /* mobile */
-      @media (max-width: 640px) {
-        header.nav { padding: 1.25rem 1.25rem; }
-        main.hero { padding: 1rem 1.25rem 3rem; }
+      @media (max-width: 720px) {
+        header.nav { padding: 1.1rem 1.25rem; }
         .nav-right a { display: none; }
         .nav-right .pill { display: inline-flex; }
-        .stages { font-size: 0.85em; }
+        .hero { padding: 4rem 1.25rem 4rem; }
+        section.block { padding: 4rem 1.25rem; }
+        .closing { padding: 5rem 1.25rem 3rem; }
+        .pipeline-row { font-size: 0.85em; }
         .stage-arrow { display: none; }
         .stage { flex-basis: calc(50% - 0.25rem); }
       }
@@ -238,62 +315,154 @@
           <span>Timbre</span>
         </div>
         <nav class="nav-right">
+          <a href="#pipeline">The pipeline</a>
+          <a href="#built-on">Built on</a>
           <a href="https://github.com/benikigai/timbre" target="_blank" rel="noopener">GitHub</a>
-          <a href="#pipeline">Pipeline</a>
           <span class="pill"><span class="dot"></span>building live</span>
         </nav>
       </header>
 
       <main class="hero">
         <div class="hero-inner">
-          <h1 class="wordmark">Timbre<span class="gradient">.</span></h1>
-          <p class="tagline">A multi-agent content engine that monitors your industry, researches what matters, and publishes <em>in your voice</em>.</p>
-          <div class="card">
+          <p class="eyebrow">A content engine for technical founders</p>
+          <h1 class="headline">Two agents fight so <em>your voice</em> survives.</h1>
+          <p class="deck">Most AI writers smooth your sentences and mangle your metrics in the process. Timbre runs a <strong>Writer</strong> and a <strong>Verify</strong> who argue until both are right — built on seven Google primitives from I/O 2026.</p>
+          <div class="status-card">
             <span class="live">● Scout online</span>
             <span class="sep">/</span>
-            <span>Cerebral Valley × Google I/O 2026</span>
+            <span>Cerebral Valley × I/O 2026</span>
             <span class="sep">/</span>
             <span>shipping live</span>
           </div>
-
-          <section class="pipeline" id="pipeline">
-            <div class="pipeline-label">The pipeline</div>
-            <div class="stages">
-              <div class="stage" style="--i:0"><span class="stage-dot"></span><span class="stage-name">Scout</span></div>
-              <span class="stage-arrow" style="--i:0">→</span>
-              <div class="stage" style="--i:1"><span class="stage-dot"></span><span class="stage-name">Curate</span></div>
-              <span class="stage-arrow" style="--i:1">→</span>
-              <div class="stage" style="--i:2"><span class="stage-dot"></span><span class="stage-name">Research</span></div>
-              <span class="stage-arrow" style="--i:2">→</span>
-              <div class="stage" style="--i:3"><span class="stage-dot"></span><span class="stage-name">Write</span></div>
-              <span class="stage-arrow" style="--i:3">→</span>
-              <div class="stage" style="--i:4"><span class="stage-dot"></span><span class="stage-name">Voice</span></div>
-              <span class="stage-arrow" style="--i:4">→</span>
-              <div class="stage" style="--i:5"><span class="stage-dot"></span><span class="stage-name">Verify</span></div>
-              <span class="stage-arrow" style="--i:5">→</span>
-              <div class="stage" style="--i:6"><span class="stage-dot"></span><span class="stage-name">Multiplex</span></div>
-            </div>
-          </section>
-
-          <section class="primitives">
-            <div class="primitives-label">Built on</div>
-            <div class="primitives-list">
-              <span class="primitive"><strong>Gemini 3.5 Flash</strong></span>
-              <span class="primitive"><strong>Antigravity Agent</strong></span>
-              <span class="primitive"><strong>Deep Research</strong></span>
-              <span class="primitive"><strong>Interactions API</strong></span>
-              <span class="primitive"><strong>Nano Banana</strong></span>
-              <span class="primitive"><strong>Gemini TTS</strong></span>
-              <span class="primitive"><strong>AI Talk Radio</strong></span>
-            </div>
-          </section>
         </div>
       </main>
 
+      <section class="block" id="pipeline">
+        <div class="section-inner">
+          <p class="section-label">The pipeline</p>
+          <h2 class="section-title">Seven agents. One workflow. <em>Every hour, your voice gets stronger.</em></h2>
+
+          <div class="pipeline-row" aria-hidden="true">
+            <div class="stage" style="--i:0"><span class="stage-dot"></span><span class="stage-name">Scout</span></div>
+            <span class="stage-arrow" style="--i:0">→</span>
+            <div class="stage" style="--i:1"><span class="stage-dot"></span><span class="stage-name">Curate</span></div>
+            <span class="stage-arrow" style="--i:1">→</span>
+            <div class="stage" style="--i:2"><span class="stage-dot"></span><span class="stage-name">Research</span></div>
+            <span class="stage-arrow" style="--i:2">→</span>
+            <div class="stage" style="--i:3"><span class="stage-dot"></span><span class="stage-name">Write</span></div>
+            <span class="stage-arrow" style="--i:3">→</span>
+            <div class="stage" style="--i:4"><span class="stage-dot"></span><span class="stage-name">Voice</span></div>
+            <span class="stage-arrow" style="--i:4">→</span>
+            <div class="stage" style="--i:5"><span class="stage-dot"></span><span class="stage-name">Verify</span></div>
+            <span class="stage-arrow" style="--i:5">→</span>
+            <div class="stage" style="--i:6"><span class="stage-dot"></span><span class="stage-name">Multiplex</span></div>
+          </div>
+
+          <div class="stage-cards">
+            <div class="stage-card">
+              <span class="num">01</span>
+              <h3 class="name">Scout</h3>
+              <p class="desc">Watches your sources every hour. Persistent file tree. Even at 3 a.m.</p>
+            </div>
+            <div class="stage-card">
+              <span class="num">02</span>
+              <h3 class="name">Curate</h3>
+              <p class="desc">Picks the topic worth your weekend from what Scout surfaced overnight.</p>
+            </div>
+            <div class="stage-card">
+              <span class="num">03</span>
+              <h3 class="name">Research</h3>
+              <p class="desc">Plans the work, asks you to edit the plan, then searches and cites. Shows its thinking.</p>
+            </div>
+            <div class="stage-card">
+              <span class="num">04</span>
+              <h3 class="name">Write</h3>
+              <p class="desc">Drafts the article from the evidence pack. Charts inline. Sources attached.</p>
+            </div>
+            <div class="stage-card">
+              <span class="num">05</span>
+              <h3 class="name">Voice</h3>
+              <p class="desc">Rewrites span by span until it sounds like you. Every diff has a reason.</p>
+            </div>
+            <div class="stage-card">
+              <span class="num">06</span>
+              <h3 class="name">Verify</h3>
+              <p class="desc">Catches every metric Voice broke. Re-grounds claims with fresh sources. The fight.</p>
+            </div>
+            <div class="stage-card">
+              <span class="num">07</span>
+              <h3 class="name">Multiplex</h3>
+              <p class="desc">Fans the post out — TTS bulletin, social carousel, optional radio segment.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="built-on">
+        <div class="section-inner">
+          <p class="section-label">Built on what Google launched yesterday</p>
+          <h2 class="section-title">Seven primitives, each doing <em>load-bearing work.</em></h2>
+
+          <div class="primitives-grid">
+            <div class="primitive-card">
+              <span class="name">Antigravity Agent</span>
+              <p class="brag">Persistent Linux sandbox. Scout's home across days, not turns.</p>
+            </div>
+            <div class="primitive-card">
+              <span class="name">Deep Research</span>
+              <p class="brag">Plans collaboratively. Streams its thinking. Draws its own charts.</p>
+            </div>
+            <div class="primitive-card">
+              <span class="name">Gemini 3.5 Flash</span>
+              <p class="brag">The agentic workhorse. Fast enough to chain six stages without losing the room.</p>
+            </div>
+            <div class="primitive-card">
+              <span class="name">Interactions API</span>
+              <p class="brag">One endpoint. Every agent. Full execution trace. Server-side state.</p>
+            </div>
+            <div class="primitive-card">
+              <span class="name">Nano Banana</span>
+              <p class="brag">Native image generation for the social carousel.</p>
+            </div>
+            <div class="primitive-card">
+              <span class="name">Gemini 2.5 TTS</span>
+              <p class="brag">Voices the audio bulletin in the voice you actually use.</p>
+            </div>
+            <div class="primitive-card">
+              <span class="name">AI Talk Radio</span>
+              <p class="brag">Host, callers, background music. A whole segment from one final draft.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="section-inner" style="max-width: 44rem;">
+          <p class="section-label">For the founders who never publish</p>
+          <h2 class="section-title">You ship code. You should <em>ship words</em> too.</h2>
+
+          <div class="prose">
+            <p class="lead-line">Every B2B founder has a draft folder.</p>
+            <p>They mean to finish those posts. They don't. Every week without a published essay is a week without authority, without inbound, without the readers who'd find them if only there were something to find.</p>
+            <p>The reason isn't laziness. It's that <strong>writing well in your own voice</strong> takes hours nobody has, and outsourcing produces something nobody recognizes.</p>
+            <p>Timbre is the agent that does it anyway. Your sources. Your voice. Your verified facts. Published on a schedule, even when you're shipping code.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="closing">
+        <blockquote>
+          "Most things never get the writeup they deserved."
+        </blockquote>
+        <p class="attrib">Timbre · usetimbre.ai</p>
+      </section>
+
       <footer class="foot">
         <span>usetimbre.ai</span>
-        <span class="sep" style="margin: 0 0.75rem; opacity: 0.4">/</span>
+        <span class="sep">/</span>
         <a href="https://github.com/benikigai/timbre" target="_blank" rel="noopener">github.com/benikigai/timbre</a>
+        <span class="sep">/</span>
+        <span>built live at Cerebral Valley × I/O 2026</span>
       </footer>
     </div>
   </body>
