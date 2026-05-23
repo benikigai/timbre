@@ -32,3 +32,4 @@ candidates.json
 seen.txt
 alerts.json
 .vercel
+.gstack/
