@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { env, allowedOrigins } from "./env.js";
 import { eventsRouter } from "./routes/events.js";
+import { scoutRouter } from "./routes/scout.js";
 import type { HealthResponse } from "../../shared/src/contracts/index.js";
 
 const STARTED_AT = new Date().toISOString();
@@ -17,6 +18,7 @@ app.use(
 app.use(express.json({ limit: "2mb" }));
 
 app.use("/api", eventsRouter);
+app.use("/api/scout", scoutRouter);
 
 app.get("/api/healthz", (_req, res) => {
   const body: HealthResponse = {
