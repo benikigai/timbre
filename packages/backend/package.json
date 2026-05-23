@@ -5,9 +5,9 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "tsc && node dist/server.js",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +19,14 @@
     "@types/node": "^25.9.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "eventsource-parser": "^3.0.8",
     "express": "^5.2.1",
+    "nanoid": "^5.1.11",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.3"
   }
 }
