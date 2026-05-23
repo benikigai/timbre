@@ -9,11 +9,18 @@ import {
   MultiplexJobSchema,
   MultiplexResultSchema,
 } from './files.js';
-import { STAGE_IDS } from './stage.js';
+import { PIPELINE_STAGE_IDS } from './stage.js';
 
-const StageIdSchema = z.enum(STAGE_IDS);
+// Run-scoped events use the 6-stage pipeline subset — scout lives on its
+// own SSE channel (see api-contracts.md §3.2) and never appears here.
+const StageIdSchema = z.enum(PIPELINE_STAGE_IDS);
 const RunEnvelope = z.object({ run_id: z.string(), at: z.string() });
 const ScoutEnvelope = z.object({ tick_id: z.string(), at: z.string() });
+
+// Note on `id` field collisions: VoiceDiff and Discrepancy each carry an `id`
+// field (stable identifier within a run). This is distinct from the SSE
+// wire-level `id:` line (monotonic event id used by Last-Event-Id reconnect).
+// Different layers — the wire id never appears inside the JSON `data:` body.
 
 // ───────── run lifecycle ─────────
 export const RunStartedSchema = RunEnvelope.extend({

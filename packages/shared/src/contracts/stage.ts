@@ -12,6 +12,19 @@ export const STAGE_IDS = [
 ] as const;
 export type StageId = (typeof STAGE_IDS)[number];
 
+// Scout lives on its own SSE channel (/api/scout/events) and never appears
+// in run-scoped events. Run lifecycle / stage lifecycle / agent.* events
+// use this narrower 6-stage enum. See api-contracts.md §3.2.
+export const PIPELINE_STAGE_IDS = [
+  'curate',
+  'research',
+  'write',
+  'voice',
+  'verify',
+  'multiplex',
+] as const;
+export type PipelineStageId = (typeof PIPELINE_STAGE_IDS)[number];
+
 export const AGENTS = {
   ANTIGRAVITY_BASE: 'antigravity-preview-05-2026',
   TIMBRE_SCOUT: 'timbre_scout',

@@ -11,6 +11,9 @@ export const RunRequestSchema = z
   })
   .refine((d) => d.topic || d.candidate_id, {
     message: 'topic_or_candidate_required',
+  })
+  .refine((d) => d.mode !== 'cached' || !!d.cache_fixture, {
+    message: 'cache_fixture_required_when_mode_cached',
   });
 export type RunRequest = z.infer<typeof RunRequestSchema>;
 
