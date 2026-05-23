@@ -14,9 +14,23 @@ const STARTED_AT = new Date().toISOString();
 const BUILD = "back-mvp-001";
 
 const app = express();
+// CORS: explicit allowlist, plus any *.vercel.app or *.tail365038.ts.net origin
+// (covers Vercel previews/prod + Tailscale Funnel access without re-deploys).
+const allowExtraSuffixes = [".vercel.app", ".tail365038.ts.net"];
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true); // same-origin / curl
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      if (allowedOrigins.includes("*")) return cb(null, true);
+      try {
+        const host = new URL(origin).hostname;
+        if (allowExtraSuffixes.some((s) => host.endsWith(s))) return cb(null, true);
+      } catch {
+        /* malformed origin → reject below */
+      }
+      cb(new Error(`CORS: origin not allowed: ${origin}`));
+    },
     credentials: true,
   }),
 );
