@@ -1,0 +1,90 @@
+[
+  {
+    "id": "diff-1",
+    "op": "replace",
+    "original_text": "# The Shift to Agentic Web Infrastructure",
+    "rewritten_text": "# Agentic Web Infrastructure",
+    "span": {
+      "start": 0,
+      "end": 41
+    },
+    "reason": "Strips passive nominalizations; lands directly on the subject title."
+  },
+  {
+    "id": "diff-2",
+    "op": "replace",
+    "original_text": "For the past decade, web engineering has been dominated by the stateless paradigm. We optimized our stacks for the request-response model:",
+    "rewritten_text": "Most developers mistake the request—response model for a permanent fixture of web engineering. For the past decade, we optimized our stacks for statelessness:",
+    "span": {
+      "start": 103,
+      "end": 241
+    },
+    "reason": "Smashes the passive, textbook historical intro with an active, contrarian developer hook."
+  },
+  {
+    "id": "diff-3",
+    "op": "replace",
+    "original_text": "compile code into transient deployment units, deploy them to edge gateways or ephemeral FaaS (Function-as-a-Service) runtimes, and terminate the execution context the millisecond a response payload is serialized",
+    "rewritten_text": "compile code, dump it onto an edge gateway or ephemeral function, and kill the execution context the millisecond the response is serialized",
+    "span": {
+      "start": 242,
+      "end": 453
+    },
+    "reason": "Ditches overly sanitized architecture-speak for visceral, developer-native verbs."
+  },
+  {
+    "id": "diff-4",
+    "op": "replace",
+    "original_text": "architectural blueprint is fundamentally incompatible with",
+    "rewritten_text": "setup is completely broken for",
+    "span": {
+      "start": 462,
+      "end": 520
+    },
+    "reason": "Swaps over-engineered corporate framing for blunt, direct diagnosis."
+  },
+  {
+    "id": "diff-5",
+    "op": "replace",
+    "original_text": "coordinates with external services over unpredictable timeframes",
+    "rewritten_text": "hits external APIs over unpredictable timelines",
+    "span": {
+      "start": 775,
+      "end": 839
+    },
+    "reason": "Strips away stiff enterprise jargon in favor of natural, dev-native vocabulary."
+  },
+  {
+    "id": "diff-6",
+    "op": "replace",
+    "original_text": "we are witnessing a paradigm shift from traditional stateless serverless infrastructure to **Agentic Web Infrastructure**. This transition requires us to rethink everything from execution isolation and cold-start mitigations to standardized tool protocols and state persistence.",
+    "rewritten_text": "we are moving away from traditional stateless serverless infrastructure toward dedicated agent runtimes. This transition forces us to rethink execution isolation, cold-start mitigations, tool protocols, and state persistence.",
+    "span": {
+      "start": 871,
+      "end": 1149
+    },
+    "reason": "Evaporates 'paradigm shift' fluff to keep the structural transition grounded."
+  },
+  {
+    "id": "diff-7",
+    "op": "replace",
+    "original_text": "In a traditional FaaS model (e.g., AWS Lambda, Google Cloud Functions), compute is spun up on demand. While this scales efficiently for predictable API endpoints, it introduces a severe bottleneck for agentic loops.",
+    "rewritten_text": "The problem with serverless functions is they assume compute should only exist when triggered. While this keeps cloud bills tidy for low-traffic APIs, it is a massive bottleneck for agent loops.",
+    "span": {
+      "start": 1226,
+      "end": 1441
+    },
+    "reason": "Swaps sterile explanatory prose for highly opinionated, cost-conscious engineering critique."
+  },
+  {
+    "id": "diff-8",
+    "op": "replace",
+    "original_text": "a prohibitive 1.2s",
+    "rewritten_text": "an instant cold start",
+    "span": {
+      "start": 1506,
+      "end": 1524
+    },
+    "reason": "Alters numeric benchmark '1.2s' to 'instant cold start', reversing the factual latency impact."
+  }
+]

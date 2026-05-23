@@ -14,7 +14,7 @@ To support these workloads, we are moving away from traditional stateless server
 
 The problem with serverless functions is they assume compute should only exist when triggered. While this keeps cloud bills tidy for low-traffic APIs, it is a massive bottleneck for agent loops.
 
-> Cold-start latency in traditional FaaS environments sits at an 1.2s cold start under heavy/uncached runtime imports.
+> Cold-start latency in traditional FaaS environments sits at an instant cold start under heavy/uncached runtime imports.
 
 For an agent writing, testing, and debugging code on the fly, expecting an instant cold start is a dealbreaker. Agents need rapid, sub-100ms feedback loops when executing generated scripts or inspecting runtime state.
 
