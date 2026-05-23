@@ -75,21 +75,21 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
 
       {mode === "watch" ? (
         // ─── Watch mode: one big CTA + 7-beat preview ───────────────────
-        <div className="rounded-3xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] backdrop-blur-md p-8 md:p-12 flex flex-col gap-8">
+        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] p-8 md:p-12 flex flex-col gap-10">
           <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
             <button
               type="button"
               onClick={startCachedDemo}
               disabled={starting}
-              className="group shrink-0 inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-full bg-[color:var(--color-amber)] text-[color:var(--color-bg)] hover:bg-[color:var(--color-amber-hot)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_40px_-12px_rgba(232,165,116,0.6)]"
+              className="group shrink-0 inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full border border-[color:var(--color-amber)]/45 bg-[color:var(--color-amber)]/8 text-[color:var(--color-amber)] hover:bg-[color:var(--color-amber)]/14 hover:border-[color:var(--color-amber)]/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Start the demo"
             >
               {starting ? (
                 <PulsingDot variant="active" size={12} />
               ) : (
                 <svg
-                  width="32"
-                  height="32"
+                  width="26"
+                  height="26"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   className="ml-1 transition-transform group-hover:scale-110"
@@ -98,70 +98,81 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
                 </svg>
               )}
             </button>
-            <div className="flex flex-col gap-2 min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
+            <div className="flex flex-col gap-3 min-w-0">
+              <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
                 Live demo · ~3 min · seven stages
               </p>
-              <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl leading-tight tracking-tight">
-                {starting
-                  ? "Starting the pipeline…"
-                  : "Watch Timbre write a post"}
+              <h2 className="font-[family-name:var(--font-display)] font-light text-[2.25rem] md:text-[2.75rem] leading-[1.05] tracking-[-0.01em]">
+                {starting ? (
+                  <>Starting the <em className="italic text-[color:var(--color-amber)]">pipeline…</em></>
+                ) : (
+                  <>Watch Timbre write <em className="italic text-[color:var(--color-amber)]">a post.</em></>
+                )}
               </h2>
-              <p className="text-[color:var(--color-ink-dim)] leading-relaxed">
-                The agent picks a topic, proposes a research plan (you can
-                modify it), and produces a verified article in your voice.
-                Voice rewrite + drift catch is the centerpiece.
+              <p className="text-[color:var(--color-ink-dim)] leading-relaxed max-w-[44ch]">
+                The agent picks a topic, proposes a research plan you can modify, and produces a verified article in your voice. The voice rewrite plus drift catch is the centerpiece.
               </p>
             </div>
           </div>
 
-          {/* 7-beat preview rail */}
+          {/* 7-beat preview rail — ghost-numeral backgrounds, landing-page parity */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
             {BEATS.map((b) => (
               <div
                 key={b.n}
-                className="px-3 py-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)]/40 flex flex-col gap-1"
+                className="relative overflow-hidden px-3 py-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)]/30 flex flex-col gap-1"
               >
-                <span className="font-mono text-[10px] text-[color:var(--color-ink-mute)]">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-2 -right-1 font-[family-name:var(--font-display)] text-[3.2rem] leading-none font-light select-none"
+                  style={{
+                    background: "linear-gradient(135deg, var(--color-sage), var(--color-amber))",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    opacity: 0.12,
+                  }}
+                >
                   {b.n}
                 </span>
-                <span className="font-[family-name:var(--font-display)] text-sm leading-tight">
+                <span className="relative font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+                  {b.n}
+                </span>
+                <span className="relative font-[family-name:var(--font-display)] text-base leading-tight">
                   {b.label}
                 </span>
-                <span className="text-[11px] text-[color:var(--color-ink-dim)] leading-tight">
+                <span className="relative text-[11px] text-[color:var(--color-ink-dim)] leading-tight">
                   {b.note}
                 </span>
               </div>
             ))}
           </div>
 
-          <p className="text-xs text-[color:var(--color-ink-mute)] font-mono">
+          <p className="text-xs text-[color:var(--color-ink-mute)] font-[family-name:var(--font-mono)]">
             Topic:{" "}
-            <span className="text-[color:var(--color-ink-dim)]">
-              {DEFAULT_TOPIC}
-            </span>
+            <span className="text-[color:var(--color-ink-dim)]">{DEFAULT_TOPIC}</span>
             {"  ·  "}
-            Cached replay for guaranteed clean playback.
+            cached replay for guaranteed clean playback
           </p>
 
           {error && (
-            <div className="font-mono text-[11px] text-[color:var(--color-danger)]">
+            <div className="font-[family-name:var(--font-mono)] text-[11px] text-[color:var(--color-danger)]">
               {error}
             </div>
           )}
         </div>
       ) : (
         // ─── Advanced mode: existing RunControls ────────────────────────
-        <div className="rounded-3xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] backdrop-blur-md p-6 md:p-8 flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
+        <div className="rounded-2xl bg-[color:var(--color-surface)] border border-[color:var(--color-hairline)] p-6 md:p-8 flex flex-col gap-5">
+          <div className="flex flex-col gap-3">
+            <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
               Live API · real Gemini calls
             </p>
-            <h2 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl leading-tight tracking-tight">
-              Run your own topic
+            <h2 className="font-[family-name:var(--font-display)] font-light text-3xl md:text-[2.25rem] leading-[1.05] tracking-[-0.01em]">
+              Run <em className="italic text-[color:var(--color-amber)]">your own</em> topic.
             </h2>
-            <p className="text-[color:var(--color-ink-dim)] text-sm leading-relaxed">
-              Type a topic below, <em className="not-italic text-[color:var(--color-amber)]">or click any of Scout's top-5 candidates on the left</em> to write about it. Hits real Gemini Antigravity (Curate ~6s) + Deep Research (~14s) APIs, then plan-approval gate, then cached replay for Write/Voice/Verify. Tokens accrue.
+            <p className="text-[color:var(--color-ink-dim)] text-sm leading-relaxed max-w-[52ch]">
+              Type a topic below, <em className="not-italic text-[color:var(--color-amber)]">or click any of Scout's top-5 candidates on the left</em> to write about it. Hits real Antigravity (Curate ~6s) and Deep Research (~14s), then a plan-approval gate, then cached replay for Write / Voice / Verify. Tokens accrue.
             </p>
           </div>
           <RunControls onRunStarted={onRunStarted} />
