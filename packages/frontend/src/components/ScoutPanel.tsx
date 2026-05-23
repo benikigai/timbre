@@ -101,20 +101,20 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
           </h2>
           <div className="flex items-center gap-1.5 pt-1">
             <PulsingDot variant={isWorking ? "active" : tick ? "active" : "idle"} size={7} />
-            <span className="font-[family-name:var(--font-mono)] text-[10px] text-[color:var(--color-ink-mute)] tabular-nums">
+            <span className="font-[family-name:var(--font-mono)] text-[12px] text-[color:var(--color-ink-mute)] tabular-nums">
               {tickHistory.length} tick{tickHistory.length === 1 ? "" : "s"}
             </span>
           </div>
         </div>
-        <p className="text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-[0.08em] text-[color:var(--color-ink-mute)] leading-relaxed">
+        <p className="text-[12px] font-[family-name:var(--font-mono)] uppercase tracking-[0.08em] text-[color:var(--color-ink-mute)] leading-relaxed">
           Managed agent · Google Antigravity · I/O 2026
         </p>
-        <p className="text-[11px] text-[color:var(--color-ink-dim)] leading-relaxed">
+        <p className="text-[13px] text-[color:var(--color-ink-dim)] leading-relaxed">
           Always-on Linux sandbox. Scores 10 feeds against your voice DNA hourly.
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-sage)]/30 text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/5">
+        <span className="font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-sage)]/30 text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/5">
           antigravity-preview-05-2026
         </span>
         {tick?.env_id && (
@@ -122,7 +122,7 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
             href={`https://antigravity.google.com/envs/${tick.env_id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-amber)] hover:border-[color:var(--color-amber)]/40 transition-colors"
+            className="font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-amber)] hover:border-[color:var(--color-amber)]/40 transition-colors"
             title={`Sandbox env: ${tick.env_id} — open in Antigravity`}
           >
             env: {shortEnv(tick.env_id)} ↗
@@ -132,14 +132,14 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
 
       {/* Capability rail — proof of what Antigravity actually exposes to the agent */}
       <div className="flex flex-col gap-1.5">
-        <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+        <div className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
           Capabilities
         </div>
         <div className="flex flex-wrap gap-1">
           {ANTIGRAVITY_TOOLS.map((t) => (
             <span
               key={t}
-              className="font-[family-name:var(--font-mono)] text-[9px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-dim)]"
+              className="font-[family-name:var(--font-mono)] text-[10.5px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-dim)]"
               title={`Antigravity tool: ${t}`}
             >
               {t}
@@ -153,14 +153,14 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
         <div className="rounded-lg border border-[color:var(--color-amber)]/40 bg-[color:var(--color-amber)]/8 p-3 flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <PulsingDot variant="active" size={6} />
-            <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-amber)]">
+            <span className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-amber)]">
               scanning live
             </span>
           </div>
-          <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] leading-snug">
+          <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] leading-snug">
             Cloning timbre-scout-config into sandbox at /workspace/scout · fetching 8 sources × 24h window · scoring against voice DNA.
           </div>
-          <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
+          <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
             Antigravity ticks take 60–180s. Streaming…
           </div>
         </div>
@@ -168,38 +168,38 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
         <button
           type="button"
           onClick={handleRefresh}
-          className="self-start font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/10 transition"
+          className="self-start font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/10 transition"
         >
           ↻ Refresh now
         </button>
       )}
       {tick ? (
         <div className="flex flex-col gap-1">
-          <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)]">
+          <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)]">
             last tick {relativeTime(tick.completed_at)} · ran {durationSeconds(tick.started_at, tick.completed_at)}s · +{tick.new_candidates_count} new
           </div>
-          <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
+          <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
             scanned {MONITORED_SOURCES.length} sources · scored {tick.candidates_count} · {alerts.length} alert{alerts.length === 1 ? "" : "s"} above 0.85 threshold
           </div>
           {tickHistory.length > 0 && (
-            <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
+            <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
               sandbox up {formatUptime(tickHistory[tickHistory.length - 1].at)} · {tickHistory.length} tick{tickHistory.length === 1 ? "" : "s"} this session
             </div>
           )}
         </div>
       ) : candidates.length > 0 ? (
-        <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
+        <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
           Showing cached snapshot. Hit refresh to scan now.
         </div>
       ) : (
-        <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
+        <div className="text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
           No ticks yet. Hit refresh to fire one.
         </div>
       )}
 
       {/* Sources monitored — visual diversity proof (10 chips, hit counts from latest tick) */}
       <div>
-        <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
+        <div className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
           <span>Sources monitored</span>
           <span className="normal-case tracking-normal text-[color:var(--color-ink-mute)]">
             {MONITORED_SOURCES.length} feeds
@@ -221,11 +221,11 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
                   }`}
                   title={`${s.id} — ${hits} candidate${hits === 1 ? "" : "s"} in latest tick`}
                 >
-                  <span className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-dim)] truncate">
+                  <span className="font-[family-name:var(--font-mono)] text-[10.5px] text-[color:var(--color-ink-dim)] truncate">
                     {s.label}
                   </span>
                   <span
-                    className={`font-[family-name:var(--font-mono)] text-[9px] tabular-nums ${
+                    className={`font-[family-name:var(--font-mono)] text-[10.5px] tabular-nums ${
                       active ? "text-[color:var(--color-sage)]" : "text-[color:var(--color-ink-mute)]"
                     }`}
                   >
@@ -242,10 +242,10 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
       {topAlert && (
         <div className="rounded-lg border border-[color:var(--color-amber)]/35 bg-[color:var(--color-amber)]/8 p-3">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-amber)]">
+            <span className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-amber)]">
               Alert · {topAlert.candidate.combined_score.toFixed(2)}
             </span>
-            <span className="text-[10px] text-[color:var(--color-ink-mute)]">
+            <span className="text-[12px] text-[color:var(--color-ink-mute)]">
               {relativeTime(topAlert.triggered_at)}
             </span>
           </div>
@@ -257,13 +257,13 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
           >
             {topAlert.candidate.title}
           </a>
-          <p className="text-[11px] text-[color:var(--color-ink-dim)] mt-1.5 line-clamp-2">{topAlert.reason}</p>
+          <p className="text-[12px] text-[color:var(--color-ink-dim)] mt-1.5 line-clamp-2">{topAlert.reason}</p>
         </div>
       )}
 
       {/* Candidates list */}
       <div>
-        <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
+        <div className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
           <span>Top {Math.min(5, candidates.length)} candidates</span>
           {onCandidateClick && candidates.length > 0 && (
             <span className="text-[color:var(--color-sage)] normal-case tracking-normal">click to write →</span>
@@ -273,15 +273,15 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
           {candidates.slice(0, 5).map((c: Candidate) => {
             const inner = (
               <>
-                <div className="text-[12px] leading-snug text-[color:var(--color-ink-dim)] group-hover:text-[color:var(--color-ink)] line-clamp-2">
+                <div className="text-[13px] leading-snug text-[color:var(--color-ink)] line-clamp-2">
                   {c.title}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-mute)]">
+                  <span className="font-[family-name:var(--font-mono)] text-[10.5px] text-[color:var(--color-ink-mute)]">
                     {c.source}
                   </span>
                   <span
-                    className="text-[9px] font-[family-name:var(--font-mono)] tabular-nums"
+                    className="text-[10.5px] font-[family-name:var(--font-mono)] tabular-nums"
                     style={{ color: c.combined_score > 0.7 ? "var(--color-amber)" : "var(--color-ink-mute)" }}
                   >
                     {c.combined_score.toFixed(2)}
@@ -313,7 +313,7 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
             );
           })}
           {candidates.length === 0 && (
-            <li className="text-[11px] text-[color:var(--color-ink-mute)] italic">
+            <li className="text-[12px] text-[color:var(--color-ink-mute)] italic">
               Awaiting first scout tick…
             </li>
           )}
@@ -327,7 +327,7 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
         const totalNew = recent.reduce((sum, t) => sum + t.new_candidates_count, 0);
         return (
           <div>
-            <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
+            <div className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
               <span>Cadence · last {recent.length} ticks</span>
               <span className="normal-case tracking-normal text-[color:var(--color-sage)] tabular-nums">
                 +{totalNew} new
@@ -353,7 +353,7 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
                 );
               })}
             </div>
-            <div className="flex justify-between text-[9px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] mt-1">
+            <div className="flex justify-between text-[10.5px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] mt-1">
               <span>{relativeTime(recent[0].at)}</span>
               <span>now</span>
             </div>
@@ -364,10 +364,10 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
       {/* Collapsible ls block — the cold-open prop */}
       {tick?.ls_output_text && (
         <details className="mt-2">
-          <summary className="cursor-pointer font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink-dim)]">
+          <summary className="cursor-pointer font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink-dim)]">
             ls -la /workspace
           </summary>
-          <pre className="mt-2 p-2 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] whitespace-pre overflow-x-auto leading-snug">
+          <pre className="mt-2 p-2 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] whitespace-pre overflow-x-auto leading-snug">
             {tick.ls_output_text}
           </pre>
         </details>
@@ -376,10 +376,10 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
       {/* Raw agent stdout — the strongest 'this is the real agent talking' signal */}
       {tick?.output_text_excerpt && (
         <details>
-          <summary className="cursor-pointer font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink-dim)]">
+          <summary className="cursor-pointer font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink-dim)]">
             agent stdout · last tick
           </summary>
-          <pre className="mt-2 p-2 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] whitespace-pre-wrap break-words leading-snug max-h-64 overflow-y-auto">
+          <pre className="mt-2 p-2 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded text-[12px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] whitespace-pre-wrap break-words leading-snug max-h-64 overflow-y-auto">
             {tick.output_text_excerpt}
           </pre>
         </details>
