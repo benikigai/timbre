@@ -145,6 +145,7 @@
         text-wrap: balance;
       }
       .headline em { font-style: italic; font-weight: 400;
+        padding-right: 0.08em; /* guard against italic glyph clip on right edge */
         background: linear-gradient(135deg, var(--sage) 0%, var(--amber) 55%, var(--gold) 100%);
         background-size: 200% 200%;
         -webkit-background-clip: text; background-clip: text;
@@ -385,7 +386,7 @@
       <main class="hero">
         <div class="hero-inner">
           <p class="eyebrow">A content engine for technical founders</p>
-          <h1 class="headline">Timbre is <em>your unique voice</em>.</h1>
+          <h1 class="headline">Timbre is <em>your unique voice.</em></h1>
           <p class="deck">Two agents fight to keep it that way through every draft.</p>
           <div class="status-card">
             <span class="live">● Scout online</span>
