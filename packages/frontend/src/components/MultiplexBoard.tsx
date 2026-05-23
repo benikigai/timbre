@@ -159,6 +159,13 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                 {tts?.status === "started" ? "synthesizing…" : "waiting…"}
               </p>
             )}
+            {tts?.status === "done" && (
+              <RefineInput
+                target="tts"
+                runId={state.runId}
+                placeholder="make it more energetic · shorten to 30s · drop the intro"
+              />
+            )}
           </GlassPanel>
 
           {/* ── Carousel (Nano Banana) ───────────────────────────────── */}
@@ -194,6 +201,13 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                   />
                 ))}
               </div>
+            )}
+            {carousel?.status === "done" && carouselUrls.length > 0 && (
+              <RefineInput
+                target="carousel"
+                runId={state.runId}
+                placeholder="warmer palette · more diagrammatic · darker mood"
+              />
             )}
           </GlassPanel>
 
@@ -447,5 +461,87 @@ function InputPreview({ label, snippet }: { label: string; snippet: string }) {
         {snippet}
       </p>
     </details>
+  );
+}
+
+// Sends an LLM-targeted refinement instruction for a multiplex output.
+// Backend contract: POST /api/multiplex/refine { run_id, target, instruction }
+// → { status: "queued", job_id?: string } or graceful 4xx/5xx.
+// The actual regenerated artifact arrives via the multiplex.job_completed
+// SSE event, so the audio/image swaps in-place without a page reload.
+function RefineInput({
+  target,
+  runId,
+  placeholder,
+}: {
+  target: "tts" | "carousel";
+  runId: string | null;
+  placeholder: string;
+}) {
+  const [instruction, setInstruction] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "queued" | "error">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    const trimmed = instruction.trim();
+    if (!runId || !trimmed || status === "sending") return;
+    setStatus("sending");
+    setError(null);
+    try {
+      const r = await fetch("/api/multiplex/refine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ run_id: runId, target, instruction: trimmed }),
+      });
+      if (!r.ok) {
+        const body = await r.text();
+        throw new Error(`HTTP ${r.status}: ${body.slice(0, 140)}`);
+      }
+      setStatus("queued");
+      setInstruction("");
+      setTimeout(() => setStatus("idle"), 4000);
+    } catch (e) {
+      setError((e as Error).message);
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1.5 pt-2 mt-1 border-t border-[color:var(--color-hairline)]">
+      <div className="flex items-center gap-1.5">
+        <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider text-[color:var(--color-sage)]">
+          adjust with ai →
+        </span>
+        <span className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-mute)]">
+          gemini-3.5-flash regenerates the {target}
+        </span>
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={instruction}
+          onChange={(e) => setInstruction(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
+          placeholder={placeholder}
+          disabled={status === "sending"}
+          className="flex-1 min-w-0 bg-[color:var(--color-bg)]/60 border border-[color:var(--color-hairline)] focus:border-[color:var(--color-amber)]/45 outline-none rounded px-2.5 py-1.5 text-[12px] font-[family-name:var(--font-sans)] text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-mute)] placeholder:italic transition-colors disabled:opacity-50"
+        />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!instruction.trim() || status === "sending" || !runId}
+          className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-[color:var(--color-amber)]/40 text-[color:var(--color-amber)] hover:bg-[color:var(--color-amber)]/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {status === "sending" ? "sending…" : status === "queued" ? "queued ✓" : "refine"}
+        </button>
+      </div>
+      {error && (
+        <p className="font-[family-name:var(--font-mono)] text-[10px] text-[color:var(--color-danger)]">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

@@ -45,47 +45,93 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
     }
   };
 
+  const startLiveDemo = async () => {
+    if (starting) return;
+    setStarting(true);
+    setError(null);
+    try {
+      const resp = await startRun({
+        topic: DEFAULT_TOPIC,
+        mode: "live",
+      });
+      onRunStarted(resp.run_id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to start live demo");
+      setStarting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-16 max-w-[64rem] mx-auto w-full py-8 md:py-14">
       {mode === "watch" ? (
         // ─── Watch mode: editorial hero, no card chrome ───────────────────
         <div className="flex flex-col gap-12">
-          <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-10">
-            <button
-              type="button"
-              onClick={startCachedDemo}
-              disabled={starting}
-              className="group shrink-0 inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full border border-[color:var(--color-amber)]/30 text-[color:var(--color-amber)]/75 hover:border-[color:var(--color-amber)]/65 hover:text-[color:var(--color-amber)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Start the demo"
-            >
-              {starting ? (
-                <PulsingDot variant="active" size={10} />
-              ) : (
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="ml-0.5 transition-transform group-hover:scale-105"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              )}
-            </button>
+          <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-3 min-w-0">
               <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-sage)]">
-                Live demo · ~3 min · seven stages
+                The seven-stage content engine · pick how it runs
               </p>
               <h2 className="font-[family-name:var(--font-display)] font-light text-[2.5rem] md:text-[3.25rem] leading-[1.02] tracking-[-0.015em] text-balance">
                 {starting ? (
-                  <>Starting the <em className="italic text-[color:var(--color-amber)]">pipeline…</em></>
+                  <>Starting the <em className="italic text-[color:var(--color-amber)]">content engine…</em></>
                 ) : (
-                  <>Watch Timbre write <em className="italic text-[color:var(--color-amber)]">a post.</em></>
+                  <>Watch Timbre run the <em className="italic text-[color:var(--color-amber)]">content engine.</em></>
                 )}
               </h2>
-              <p className="text-[color:var(--color-ink-dim)] leading-relaxed max-w-[44ch]">
-                The agent picks a topic, proposes a research plan you can modify, and produces a verified article in your voice. The voice rewrite plus drift catch is the centerpiece.
+              <p className="text-[color:var(--color-ink-dim)] leading-relaxed max-w-[58ch]">
+                From topic to publication: research, draft, rewrite in your voice, verify every claim, fan out to TTS audio and a 3-slide carousel. Voice preservation through the long pipeline is the centerpiece.
               </p>
+            </div>
+
+            {/* Dual CTA: cached (safe demo) + live (real API calls) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[44rem]">
+              <button
+                type="button"
+                onClick={startCachedDemo}
+                disabled={starting}
+                className="group flex items-center gap-4 px-5 py-4 rounded-xl border border-[color:var(--color-amber)]/30 hover:border-[color:var(--color-amber)]/65 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-left"
+              >
+                <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full border border-[color:var(--color-amber)]/35 text-[color:var(--color-amber)]/80 group-hover:text-[color:var(--color-amber)] group-hover:border-[color:var(--color-amber)]/70 transition-colors">
+                  {starting ? (
+                    <PulsingDot variant="active" size={8} />
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  )}
+                </span>
+                <span className="flex flex-col gap-0.5 min-w-0">
+                  <span className="font-[family-name:var(--font-display)] text-base text-[color:var(--color-ink)] leading-tight">
+                    Watch the cached demo
+                  </span>
+                  <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+                    ~3 min · guaranteed playback
+                  </span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={startLiveDemo}
+                disabled={starting}
+                className="group flex items-center gap-4 px-5 py-4 rounded-xl border border-[color:var(--color-sage)]/30 hover:border-[color:var(--color-sage)]/65 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-left"
+              >
+                <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full border border-[color:var(--color-sage)]/35 text-[color:var(--color-sage)]/85 group-hover:text-[color:var(--color-sage)] group-hover:border-[color:var(--color-sage)]/70 transition-colors">
+                  {starting ? (
+                    <PulsingDot variant="active" size={8} />
+                  ) : (
+                    <PulsingDot variant="active" size={8} />
+                  )}
+                </span>
+                <span className="flex flex-col gap-0.5 min-w-0">
+                  <span className="font-[family-name:var(--font-display)] text-base text-[color:var(--color-ink)] leading-tight">
+                    Run live · real Gemini APIs
+                  </span>
+                  <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+                    ~6 min · tokens accrue
+                  </span>
+                </span>
+              </button>
             </div>
           </div>
 
@@ -124,17 +170,15 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
 
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs font-[family-name:var(--font-mono)]">
             <span className="text-[color:var(--color-ink-mute)]">
-              Topic:{" "}
+              Default topic:{" "}
               <span className="text-[color:var(--color-ink-dim)]">{DEFAULT_TOPIC}</span>
-              {"  ·  "}
-              cached replay for guaranteed clean playback
             </span>
             <button
               type="button"
               onClick={() => setMode("advanced")}
               className="text-[color:var(--color-sage)] hover:text-[color:var(--color-amber)] transition-colors uppercase tracking-wider"
             >
-              or run a live topic →
+              or pick your own topic →
             </button>
           </div>
 
