@@ -1,24 +1,59 @@
-import { useState } from "react"
-import { Header } from "./components/Header"
-import { CouncilView } from "./components/CouncilView"
-import { DiffView } from "./components/DiffView"
-import { MultiplexBoard } from "./components/MultiplexBoard"
-import { useSSE } from "./hooks/useSSE"
+import { useState } from "react";
+import { AppShell } from "./AppShell";
+import { ScoutPanel } from "./components/ScoutPanel";
+import { RunControls } from "./components/RunControls";
+import { DiffView } from "./components/DiffView";
+import { MultiplexBoard } from "./components/MultiplexBoard";
+import { PlanApprovalModal } from "./components/PlanApprovalModal";
+import { VerifyOverlay } from "./components/VerifyOverlay";
+import { ProofBeat } from "./components/ProofBeat";
+import { useRunStateMachine } from "./hooks/useRunStateMachine";
+import { useScoutState } from "./hooks/useScoutState";
 
-type View = "council" | "diff" | "multiplex"
+function getDemoFlags() {
+  if (typeof window === "undefined") return { demoCached: false, cacheFixture: undefined as string | undefined };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    demoCached: params.get("demo") === "cached",
+    cacheFixture: params.get("cache_fixture") ?? undefined,
+  };
+}
 
 export default function App() {
-  const [view, setView] = useState<View>("council")
-  const { events, agents, isConnected } = useSSE()
+  const [runId, setRunId] = useState<string | null>(null);
+  const flags = getDemoFlags();
+  const { state, beat, connected: runConnected } = useRunStateMachine(runId, {
+    demoCached: flags.demoCached,
+    cacheFixture: flags.cacheFixture,
+  });
+  const { scoutState, connected: scoutConnected } = useScoutState();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-      <Header view={view} setView={setView} isConnected={isConnected} />
-      <main className="flex-1 p-4">
-        {view === "council" && <CouncilView agents={agents} />}
-        {view === "diff" && <DiffView events={events} />}
-        {view === "multiplex" && <MultiplexBoard events={events} />}
-      </main>
-    </div>
-  )
+    <AppShell
+      state={state}
+      scoutConnected={scoutConnected}
+      runConnected={runConnected}
+      leftPanel={<ScoutPanel scoutState={scoutState} />}
+      centerContent={
+        <div className="p-6 flex flex-col gap-6 min-h-full">
+          {!runId ? (
+            <RunControls onRunStarted={setRunId} />
+          ) : (
+            <>
+              <RunControls onRunStarted={setRunId} runId={runId} />
+              <DiffView state={state} />
+              <MultiplexBoard state={state} />
+              {beat === "proof" && <ProofBeat />}
+            </>
+          )}
+        </div>
+      }
+      overlays={
+        <>
+          <PlanApprovalModal state={state} runId={runId} />
+          <VerifyOverlay state={state} />
+        </>
+      }
+    />
+  );
 }
