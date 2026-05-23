@@ -22,10 +22,11 @@ const SCOUT_FALLBACK = resolve(REPO_ROOT, "data", "cache", "scout-state.json");
 const VOICE_DNA_PATH = resolve(REPO_ROOT, "data", "voice", "voice_dna.json");
 const VOICE_CORPUS_DIR = resolve(REPO_ROOT, "data", "voice", "voice_corpus");
 const DEMO_FIXTURE = "agentic-web-infra";
-// Cached fixture is ~104s of t_offset_ms; 1.5x compresses to ~70s so
-// the demo lands well inside 1.5 min with margin for SSE overhead.
-// Drop to 1.0 for true real-time replay.
-const REPLAY_SPEED = 1.5;
+// Cached fixture is ~104s of t_offset_ms; 2.5x compresses to ~42s of
+// replay. Vercel-edge + Tailscale-Funnel SSE adds ~40s of per-event
+// latency on prod, so prod wall time lands ~82s (under the 90s target);
+// local-only wall time is ~42s. Drop to 1.0 for true real-time replay.
+const REPLAY_SPEED = 2.5;
 
 async function loadVoiceProfileFromDisk(): Promise<{
   profile: unknown;
