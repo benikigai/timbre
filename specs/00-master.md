@@ -25,9 +25,9 @@ A multi-agent content engine that monitors a founder's industry 24/7, researches
 | D7 | Multiplex tiers | Tier 1 (TTS bulletin + Banana carousel) blocks demo; Tier 2 (Radio + Veo) optional flourish | Risk-bucketed per brief |
 | D8 | Shared types home | `packages/shared/src/contracts/` | Per user confirmation; co-located with monorepo |
 | D9 | Demo topic default | "The Shift to Agentic Web Infrastructure" | From GDrive PRD; user can override |
-| D10 | Visual identity default | Dark studio (Neural Expressive) | From PRD; user can override |
+| D10 | Visual identity | Sage + amber + gold on warm-dark `#0D110F` (per commit `23fe61c`; overrides original Neural-Expressive default) | Front-terminal call; documented in `02-front.md` §8 |
 
-**Defaults that ship unless overridden by user:** D9, D10. **AI Talk Radio (Tier 2):** off by default; smoke-test Sat AM, flip on if passes.
+**Defaults that ship unless overridden by user:** D9. **AI Talk Radio (Tier 2):** off by default; smoke-test Sat AM, flip on if passes.
 
 ---
 
@@ -213,7 +213,7 @@ The `ls -la` block is the **cold-open prop**: surface verbatim in the Scout pane
 | OD1 | Voice corpus — which 4–6 of Ben's posts | `tools/voice_corpus_picker.md` proposes a shortlist; ship the top 4 by distinctiveness |
 | OD2 | Demo topic | "The Shift to Agentic Web Infrastructure" (D9) |
 | OD3 | AI Talk Radio go/no-go | no-go (Tier 1 only) |
-| OD4 | Visual identity | dark studio (D10) |
+| OD4 | Visual identity | locked: sage + amber + gold (D10) — no further action |
 
 ---
 
