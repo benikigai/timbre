@@ -29,6 +29,11 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
   const [veoUrl, setVeoUrl] = useState<string | null>(null);
   const [veoError, setVeoError] = useState<string | null>(null);
   const [veoLen, setVeoLen] = useState<5 | 8 | 15>(5);
+  // Avatar: user can attach a photo of themselves; Veo animates it as the
+  // visual anchor instead of generating from text alone.
+  const [avatarB64, setAvatarB64] = useState<string | null>(null);
+  const [avatarMime, setAvatarMime] = useState<string>("image/png");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const multiplexActive = state.stages.multiplex.status === "active" || state.stages.multiplex.status === "done";
 
   if (!multiplexActive) return null;
@@ -77,19 +82,39 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
     }
   };
 
+  const handleAvatarSelect = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== "string") return;
+      // result is "data:image/png;base64,…" — strip the prefix.
+      const comma = result.indexOf(",");
+      if (comma < 0) return;
+      setAvatarB64(result.slice(comma + 1));
+      setAvatarMime(file.type || "image/png");
+      setAvatarPreview(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleVeoGenerate = async () => {
     if (veoStatus === "generating") return;
     setVeoStatus("generating");
     setVeoError(null);
     setVeoUrl(null);
     try {
-      // Build a prompt from the article — first paragraph + style hint.
       const firstPara = articleText.split(/\n+/).find((l) => l.trim().length > 40) ?? articleText.slice(0, 200);
-      const prompt = `A technical founder talking confidently to camera in a clean, sunlit office. Soft natural light, shallow depth of field, cinematic warmth, eye-level shot. Topic: ${firstPara.slice(0, 220)}`;
+      const prompt = avatarB64
+        ? `Animate this person talking confidently to camera. Soft natural light, eye-level shot, subtle gestures and lip movement, cinematic warmth. Speaking about: ${firstPara.slice(0, 220)}`
+        : `A technical founder talking confidently to camera in a clean, sunlit office. Soft natural light, shallow depth of field, cinematic warmth, eye-level shot. Topic: ${firstPara.slice(0, 220)}`;
       const r = await fetch("/api/veo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, length_seconds: veoLen }),
+        body: JSON.stringify({
+          prompt,
+          length_seconds: veoLen,
+          ...(avatarB64 ? { avatar_image_b64: avatarB64, avatar_mime: avatarMime } : {}),
+        }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 120)}`);
       const data = (await r.json()) as { url: string | null };
@@ -259,6 +284,44 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
               label="What goes into Veo (text prompt)"
               snippet={draftSnippet ? `Founder-style talking head from: "${draftSnippet}"` : "(final draft pending…)"}
             />
+            {/* Avatar photo — Veo animates this as the visual anchor */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] cursor-pointer px-3 py-1.5 rounded-full border border-[color:var(--color-hairline)] hover:border-[color:var(--color-sage)]/40 hover:text-[color:var(--color-ink)] transition">
+                {avatarB64 ? "↻ swap avatar" : "📷 attach avatar photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleAvatarSelect(f);
+                  }}
+                />
+              </label>
+              {avatarPreview && (
+                <div className="flex items-center gap-2">
+                  <img
+                    src={avatarPreview}
+                    alt="avatar preview"
+                    className="w-10 h-10 rounded-full object-cover border border-[color:var(--color-sage)]/40"
+                  />
+                  <span className="font-mono text-[10px] text-[color:var(--color-sage)]">
+                    Veo will animate your face
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarB64(null);
+                      setAvatarPreview(null);
+                    }}
+                    className="font-mono text-[10px] text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-danger)]"
+                    title="Remove avatar"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-3 flex-wrap">
               <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
                 length

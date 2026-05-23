@@ -14,7 +14,8 @@ export const veoRouter = Router();
 // (the v1beta/files/<id>:download URI requires x-goog-api-key auth that the
 // browser can't supply). Streams the bytes through to the <video> element.
 veoRouter.get("/file/:fileId", async (req: Request, res: Response) => {
-  const fileId = req.params.fileId;
+  const raw = req.params.fileId;
+  const fileId = Array.isArray(raw) ? raw[0] : raw;
   if (!fileId) {
     res.status(400).json({ error: "fileId_required" });
     return;
@@ -52,6 +53,11 @@ veoRouter.get("/file/:fileId", async (req: Request, res: Response) => {
 interface VeoBody {
   prompt?: string;
   length_seconds?: number;
+  // Avatar source: either a publicly-fetchable URL or a base64 image. If
+  // provided, Veo animates this image instead of generating from text only.
+  avatar_image_url?: string;
+  avatar_image_b64?: string;
+  avatar_mime?: string;
 }
 
 const DEFAULT_PROMPT =
@@ -62,16 +68,37 @@ veoRouter.post("/", async (req: Request, res: Response) => {
   const prompt = (body.prompt ?? "").trim() || DEFAULT_PROMPT;
   const lengthSec = Math.max(4, Math.min(15, body.length_seconds ?? 15));
 
+  // Resolve avatar to inline image bytes if a URL is provided.
+  let avatarImage: { imageBytes: string; mimeType: string } | undefined;
+  if (body.avatar_image_b64) {
+    avatarImage = {
+      imageBytes: body.avatar_image_b64,
+      mimeType: body.avatar_mime ?? "image/png",
+    };
+  } else if (body.avatar_image_url) {
+    try {
+      const r = await fetch(body.avatar_image_url);
+      if (!r.ok) throw new Error(`avatar fetch ${r.status}`);
+      const buf = Buffer.from(await r.arrayBuffer());
+      const ct = r.headers.get("content-type") ?? "image/png";
+      avatarImage = { imageBytes: buf.toString("base64"), mimeType: ct };
+      console.log(`[veo] avatar fetched: ${buf.length} bytes, ${ct}`);
+    } catch (e) {
+      console.warn(`[veo] avatar fetch failed: ${(e as Error).message}; falling back to text-only`);
+    }
+  }
+
   try {
     let operation = await genai.models.generateVideos({
       model: "veo-2.0-generate-001",
       prompt,
+      ...(avatarImage ? { image: avatarImage } : {}),
       config: {
         numberOfVideos: 1,
         durationSeconds: lengthSec,
         aspectRatio: "16:9",
       } as never,
-    });
+    } as never);
     console.log(`[veo] operation started: ${operation.name}`);
 
     const POLL_MS = 5000;

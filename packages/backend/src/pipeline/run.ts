@@ -2,13 +2,14 @@
 // Fire-and-forget: returns runId immediately; pipeline runs async on the bus.
 
 import { nanoid } from "nanoid";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { emit } from "../bus/eventLog.js";
 import { replay } from "../bus/replay.js";
 import { runCurate } from "./stages/curate.js";
 import { runResearchPlan } from "./stages/research.js";
 import { registerPending } from "./planApproval.js";
+import { registerVoicePending } from "./voiceProfileApproval.js";
 import { getState as getScoutState } from "./scoutCache.js";
 import type {
   Candidate,
@@ -18,7 +19,35 @@ import type {
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..", "..", "..");
 const SCOUT_FALLBACK = resolve(REPO_ROOT, "data", "cache", "scout-state.json");
+const VOICE_DNA_PATH = resolve(REPO_ROOT, "data", "voice", "voice_dna.json");
+const VOICE_CORPUS_DIR = resolve(REPO_ROOT, "data", "voice", "voice_corpus");
 const DEMO_FIXTURE = "agentic-web-infra";
+
+async function loadVoiceProfileFromDisk(): Promise<{
+  profile: unknown;
+  corpus_titles: string[];
+} | null> {
+  try {
+    const raw = await readFile(VOICE_DNA_PATH, "utf8");
+    const profile = JSON.parse(raw);
+    const corpus: string[] = [];
+    try {
+      const files = await readdir(VOICE_CORPUS_DIR);
+      for (const f of files) {
+        if (f.endsWith(".md") && f !== "README.md") {
+          const text = await readFile(resolve(VOICE_CORPUS_DIR, f), "utf8");
+          const m = text.match(/^#\s+(.+)$/m);
+          corpus.push(m?.[1]?.trim() ?? f.replace(/\.md$/, ""));
+        }
+      }
+    } catch {
+      /* corpus optional */
+    }
+    return { profile, corpus_titles: corpus };
+  } catch {
+    return null;
+  }
+}
 
 async function loadCandidates(): Promise<Candidate[]> {
   const live = getScoutState();
@@ -112,8 +141,36 @@ export async function startRun(req: RunRequest): Promise<StartRunResult> {
         plan.plan_interaction_id,
       );
       console.log(
-        `[run ${runId}] plan approved${modifications ? ` with mods: ${modifications.slice(0, 80)}…` : ""}; replaying cache`,
+        `[run ${runId}] plan approved${modifications ? ` with mods: ${modifications.slice(0, 80)}…` : ""}; opening voice-profile gate`,
       );
+
+      // ── Voice-profile gate (between plan-approval and Write/replay) ──
+      // Surface the current voice DNA + corpus titles so the user can
+      // verify/edit before Voice runs. Suspends until POST /api/voice-
+      // profile/:runId/approve fires.
+      const voiceBundle = await loadVoiceProfileFromDisk();
+      if (voiceBundle) {
+        emit(runId, "voice.profile_proposed", {
+          run_id: runId,
+          at: new Date().toISOString(),
+          profile: voiceBundle.profile,
+          corpus_titles: voiceBundle.corpus_titles,
+        });
+        try {
+          const { approved_profile } = await registerVoicePending(runId);
+          emit(runId, "voice.profile_approved", {
+            run_id: runId,
+            at: new Date().toISOString(),
+            approved_profile,
+            edited: JSON.stringify(approved_profile) !== JSON.stringify(voiceBundle.profile),
+          });
+          console.log(`[run ${runId}] voice profile approved`);
+        } catch (e) {
+          console.warn(`[run ${runId}] voice-profile gate rejected: ${(e as Error).message}`);
+        }
+      } else {
+        console.warn(`[run ${runId}] no voice profile on disk; skipping gate`);
+      }
 
       // Hand off to cache replay (per MINIMUM-VIABLE: don't actually run DR
       // execution — would take 2-20 min).

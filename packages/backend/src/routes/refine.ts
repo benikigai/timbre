@@ -6,6 +6,8 @@
 import { Router, type Request, type Response } from "express";
 import { genai } from "../genai/client.js";
 import { extractText } from "../pipeline/extractText.js";
+import { getRunVoiceProfile } from "../pipeline/voiceProfileApproval.js";
+import type { VoiceProfile } from "@timbre/shared";
 
 export const refineRouter = Router();
 
@@ -21,6 +23,18 @@ Rules:
 interface RefineBody {
   draft?: string;
   feedback?: string;
+  run_id?: string;
+  voice_profile?: VoiceProfile; // Optional inline override (option iii)
+}
+
+function voiceProfileAsInstructions(p: VoiceProfile): string {
+  const lines: string[] = ["", "## Voice profile (binding)"];
+  if (p.tone?.length) lines.push(`- Tone: ${p.tone.join(", ")}`);
+  if (p.sentence_length) lines.push(`- Sentence length: ${p.sentence_length}`);
+  if (p.technical_depth) lines.push(`- Technical depth: ${p.technical_depth}`);
+  if (p.forbidden_jargon?.length) lines.push(`- Never use: ${p.forbidden_jargon.join(", ")}`);
+  if (p.preferred_openings?.length) lines.push(`- Prefer opener patterns: ${p.preferred_openings.join(" | ")}`);
+  return lines.join("\n");
 }
 
 refineRouter.post("/", async (req: Request, res: Response) => {
@@ -31,11 +45,19 @@ refineRouter.post("/", async (req: Request, res: Response) => {
     res.status(400).json({ error: "draft_and_feedback_required" });
     return;
   }
+  // Prefer the inline voice profile sent with this request; otherwise fall
+  // back to the run-scoped profile set by the voice-profile gate.
+  const profile =
+    body.voice_profile ?? (body.run_id ? getRunVoiceProfile(body.run_id) : undefined);
+  const systemInstruction = profile
+    ? `${REFINE_SYS}\n${voiceProfileAsInstructions(profile)}`
+    : REFINE_SYS;
+
   try {
     const interaction = await genai.interactions.create(
       {
         model: "gemini-3.5-flash",
-        system_instruction: REFINE_SYS,
+        system_instruction: systemInstruction,
         input: `## Current draft\n\n${draft}\n\n## User feedback\n\n${feedback}\n\nReturn the revised draft now.`,
       } as never,
       { timeout: 120_000 },

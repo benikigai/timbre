@@ -7,6 +7,7 @@ import type {
   MultiplexJob,
   StageId,
   VoiceDiff,
+  VoiceProfile,
 } from "@timbre/shared/contracts";
 
 export type StageStatus = "idle" | "active" | "done" | "error";
@@ -30,6 +31,13 @@ export interface PlanState {
   md: string;
   planInteractionId: string;
   approved: boolean;
+}
+
+export interface VoiceProfileGateState {
+  profile: VoiceProfile;
+  corpusTitles: string[];
+  approved: boolean;
+  edited: boolean;
 }
 
 export interface RunErrorState {
@@ -65,6 +73,7 @@ export interface RunState {
   citations: Citation[];
   charts: Chart[];
   plan: PlanState | null;
+  voiceGate: VoiceProfileGateState | null;
   multiplexJobs: Partial<Record<MultiplexJob, MultiplexJobState>>;
   finalMdUrl: string | null;
   completed: boolean;
@@ -101,6 +110,7 @@ export const initialRunState: RunState = {
   citations: [],
   charts: [],
   plan: null,
+  voiceGate: null,
   multiplexJobs: {},
   finalMdUrl: null,
   completed: false,

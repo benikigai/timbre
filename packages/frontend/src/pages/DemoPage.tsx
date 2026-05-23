@@ -9,6 +9,8 @@ import { DiffView } from "../components/DiffView";
 import { ActivityFeed } from "../components/ActivityFeed";
 import { MultiplexBoard } from "../components/MultiplexBoard";
 import { PlanApprovalModal } from "../components/PlanApprovalModal";
+import { VoiceProfileModal } from "../components/VoiceProfileModal";
+import { StyleProfilePanel } from "../components/StyleProfilePanel";
 import { VerifyOverlay } from "../components/VerifyOverlay";
 import { EditableDraft } from "../components/EditableDraft";
 import { ProofBeat } from "../components/ProofBeat";
@@ -61,11 +63,17 @@ export default function DemoPage() {
       runConnected={runConnected}
       onReset={runId ? handleReset : undefined}
       leftPanel={
-        <ScoutPanel
-          scoutState={scoutState}
-          onCandidateClick={!runId ? handleCandidateClick : undefined}
-          scanning={scoutScanning}
-        />
+        <>
+          <ScoutPanel
+            scoutState={scoutState}
+            onCandidateClick={!runId ? handleCandidateClick : undefined}
+            scanning={scoutScanning}
+          />
+          <StyleProfilePanel
+            overrideProfile={state.voiceGate?.approved ? state.voiceGate.profile : null}
+            edited={state.voiceGate?.edited ?? false}
+          />
+        </>
       }
       centerContent={
         !runId ? (
@@ -79,13 +87,19 @@ export default function DemoPage() {
             <RunControls onRunStarted={setRunId} runId={runId} />
             <DiffView state={state} />
             <ActivityFeed state={state} />
-            {state.completed && <EditableDraft state={state} />}
+            {state.completed && <EditableDraft state={state} runId={runId} />}
             <MultiplexBoard state={state} />
             {beat === "proof" && <ProofBeat />}
           </div>
         )
       }
-      overlays={<><PlanApprovalModal state={state} runId={runId} /><VerifyOverlay state={state} /></>}
+      overlays={
+        <>
+          <PlanApprovalModal state={state} runId={runId} />
+          <VoiceProfileModal state={state} runId={runId} />
+          <VerifyOverlay state={state} />
+        </>
+      }
     />
   );
 }

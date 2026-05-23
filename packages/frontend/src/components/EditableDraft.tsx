@@ -7,9 +7,10 @@ import type { RunState } from "../state/runStateTypes";
 
 interface EditableDraftProps {
   state: RunState;
+  runId?: string | null;
 }
 
-export function EditableDraft({ state }: EditableDraftProps) {
+export function EditableDraft({ state, runId }: EditableDraftProps) {
   const [original, setOriginal] = useState<string>("");
   const [draft, setDraft] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -68,7 +69,17 @@ export function EditableDraft({ state }: EditableDraftProps) {
       const r = await fetch("/api/refine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draft, feedback }),
+        body: JSON.stringify({
+          draft,
+          feedback,
+          // Option iii: pass run_id so backend can resolve the per-run voice
+          // profile override that was set by the voice-gate. Backend appends
+          // it to the system_instruction so 'shorten it' respects voice too.
+          ...(runId ? { run_id: runId } : {}),
+          ...(state.voiceGate?.approved && state.voiceGate.edited
+            ? { voice_profile: state.voiceGate.profile }
+            : {}),
+        }),
       });
       if (!r.ok) {
         const errText = await r.text();

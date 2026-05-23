@@ -157,6 +157,25 @@ export function runReducer(s: RunState, e: AnyEvent | { type: "__reset__" }): Ru
         plan: s.plan ? { ...s.plan, approved: true } : s.plan,
       };
 
+    case "voice.profile_proposed":
+      return {
+        ...s,
+        voiceGate: {
+          profile: e.data.profile,
+          corpusTitles: e.data.corpus_titles,
+          approved: false,
+          edited: false,
+        },
+      };
+
+    case "voice.profile_approved":
+      return {
+        ...s,
+        voiceGate: s.voiceGate
+          ? { ...s.voiceGate, profile: e.data.approved_profile, approved: true, edited: e.data.edited }
+          : null,
+      };
+
     case "voice.diff":
       // VoiceDiff payload merged with envelope; extract the diff fields.
       return {

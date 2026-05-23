@@ -8,6 +8,7 @@ import {
   ScoutTickResultSchema,
   MultiplexJobSchema,
   MultiplexResultSchema,
+  VoiceProfileSchema,
 } from './files.js';
 import { PIPELINE_STAGE_IDS } from './stage.js';
 
@@ -105,6 +106,19 @@ export const ResearchPlanApprovedSchema = RunEnvelope.extend({
   modifications: z.string().optional(),
 });
 
+// Voice-profile verification gate (between Research plan-approval and Write).
+// Emits the current voice DNA + the corpus the agent will draw from; user
+// can approve as-is or submit an edited profile via POST /api/runs/:id/
+// voice-profile/approve. Pipeline suspends until either fires.
+export const VoiceProfileProposedSchema = RunEnvelope.extend({
+  profile: VoiceProfileSchema,
+  corpus_titles: z.array(z.string()),
+});
+export const VoiceProfileApprovedSchema = RunEnvelope.extend({
+  approved_profile: VoiceProfileSchema,
+  edited: z.boolean(),
+});
+
 export const VoiceDiffEventSchema = RunEnvelope.merge(VoiceDiffSchema);
 
 export const VerifyCheckingClaimSchema = RunEnvelope.extend({ claim: z.string() });
@@ -150,6 +164,8 @@ export const EventTypeMap = {
   'curate.selected': CurateSelectedSchema,
   'research.plan_proposed': ResearchPlanProposedSchema,
   'research.plan_approved': ResearchPlanApprovedSchema,
+  'voice.profile_proposed': VoiceProfileProposedSchema,
+  'voice.profile_approved': VoiceProfileApprovedSchema,
   'voice.diff': VoiceDiffEventSchema,
   'verify.checking_claim': VerifyCheckingClaimSchema,
   'verify.discrepancy': VerifyDiscrepancyEventSchema,

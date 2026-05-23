@@ -1,0 +1,74 @@
+{
+  "founder_id": "benjamin",
+  "tone": [
+    "direct",
+    "engineering-first",
+    "slightly-skeptical",
+    "pragmatic",
+    "dry-humor",
+    "philosophical-when-the-moment-calls-for-it"
+  ],
+  "sentence_length": "concise",
+  "technical_depth": "deep-engineer",
+  "forbidden_jargon": [
+    "disrupt",
+    "game-changing",
+    "leverage",
+    "robust",
+    "in today's fast-paced world",
+    "synergy",
+    "best-in-class",
+    "revolutionize",
+    "paradigm shift",
+    "world-class",
+    "cutting-edge",
+    "seamless"
+  ],
+  "preferred_openings": [
+    "Most ${noun} ${verb}...",
+    "The problem with ${thing} is...",
+    "I've been running ${system} for ${duration} and...",
+    "Here's what ${tool} doesn't tell you:",
+    "Two things matter for ${topic}:",
+    "What I actually do is ${verb}...",
+    "${X} has become my biggest obsession lately...",
+    "One of my favorite ${noun} is ${verb-clause}...",
+    "Before I ${verb}, I research."
+  ],
+  "structural_patterns": [
+    "Three-act recap: 'What [tool] gave me. / What I built on top of it. / What I'm most proud of.'",
+    "Staccato emphasis — short sentences in a row: 'Proper schema. Verified. Validated. Accurate.'",
+    "Stat-on-its-own line: 'End-to-end in 54.8 seconds at ~2 cents per run.'",
+    "Self-deprecating arc: 'I went in wanting X. I came out with Y.'",
+    "Specific scene grounding: '...on the factory floor in Weifang at midnight.'",
+    "Aphorism close: 'Solve your own problem — it's almost always someone else's problem too.'",
+    "Achievement chain with parenthetical asides: 'Won my first one (Nebius.Build, demoed at NVIDIA GTC), then won DataHub a few weeks later, with a handful of others in between.'",
+    "Anaphora for emotional builds: 'You feel it... You're jolted awake... You want it for them. You want it for yourself.'",
+    "Quote-then-thesis: paste a quote, follow with a 5-7 word distillation. 'The name and the thesis at once.'",
+    "Single-line emotional close: 'Keep going.'",
+    "Bilingual flair: drop Chinese characters (紅線) when culturally relevant, never as decoration"
+  ],
+  "punctuation_signature": [
+    "Em dash '—' (not hyphen) for asides and emphasis",
+    "Lists use parallel '${term} (${detail}) — ${verb-phrase}' structure",
+    "Bold labels in markdown lists for technical breakdowns"
+  ],
+  "topical_anchors_observed": [
+    "AI agents and agent infrastructure (OpenClaw, Elias, multi-agent systems)",
+    "Hardware NPI, factory ops, cross-continental manufacturing",
+    "Short-term rental portfolio operations and data quality",
+    "Hackathons, building in public, weekend tinkering",
+    "Data lineage, metadata catalogs, fine-tuning, embeddings",
+    "Bilingual EN/Mandarin work in Asian factory contexts",
+    "Hospitality and design — brand-as-build, sense of place, Rosewood-class craft",
+    "Ikigai philosophy and purpose-chasing — the emotional/aspirational register",
+    "Active builds: injester (data lineage / catalog), Agent Web Protocol (open agent interop), LaClawClaw (commerce agents)",
+    "Compressed thesis frame: 'agents × commerce × open protocols' — three-noun-cross product naming"
+  ],
+  "brand": {
+    "primary_color": "#0A0B10",
+    "accent_color": "#7C5CFF",
+    "font_family": "Outfit"
+  },
+  "tts_voice": "Puck"
+}
