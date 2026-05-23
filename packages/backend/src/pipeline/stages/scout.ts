@@ -12,7 +12,7 @@ import type {
   ScoutTickResult,
   Candidate,
   Alert,
-} from "../../../shared/src/contracts/index.js";
+} from "@timbre/shared";
 
 // Per ai.google.dev/gemini-api/docs/antigravity-agent: call the base antigravity
 // agent directly with environment.sources mounting our scout config repo. The

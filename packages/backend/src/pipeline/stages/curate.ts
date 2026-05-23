@@ -4,7 +4,7 @@
 import { genai } from "../../genai/client.js";
 import { emit } from "../../bus/eventLog.js";
 import { extractText } from "../extractText.js";
-import type { Candidate } from "../../../shared/src/contracts/index.js";
+import type { Candidate } from "@timbre/shared";
 
 const CURATE_SYS = `You are Timbre's Curate stage. Pick the 3 candidates a technical founder should write about, balancing combined_score against strategic fit (engineering-first, deep-technical, fresh angle).
 

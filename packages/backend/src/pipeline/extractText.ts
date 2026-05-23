@@ -1,13 +1,13 @@
 // Pull all text-content fragments from an Interaction's model_output steps.
 // SDK shape: Interaction.steps[] -> filter type='model_output' -> content[] -> filter type='text'.
-import type { Interaction } from "@google/genai/resources/interactions/interactions";
+import type { Interactions } from "@google/genai";
 
 interface ModelOutputStepLike {
   type: string;
   content?: Array<{ type?: string; text?: string }>;
 }
 
-export function extractText(interaction: Interaction): string {
+export function extractText(interaction: Interactions.Interaction): string {
   const steps = (interaction.steps ?? []) as ModelOutputStepLike[];
   let out = "";
   for (const s of steps) {

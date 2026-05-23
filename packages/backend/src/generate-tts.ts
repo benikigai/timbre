@@ -46,6 +46,9 @@ async function generate() {
     }
 
     const audioBase64 = part.inlineData.data;
+    if (!audioBase64) {
+      throw new Error("No inlineData data returned from model.");
+    }
     const buffer = Buffer.from(audioBase64, 'base64');
     
     // Save raw PCM

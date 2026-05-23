@@ -16,7 +16,7 @@ function openStream(res: Response): void {
 
 eventsRouter.get("/runs/:id/events", (req: Request, res: Response) => {
   openStream(res);
-  const cleanup = attachWriter(req.params.id, res);
+  const cleanup = attachWriter(req.params.id as string, res);
   req.on("close", cleanup);
 });
 

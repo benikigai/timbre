@@ -14,7 +14,7 @@ import type {
   Candidate,
   RunRequest,
   ScoutStateResponse,
-} from "../../../shared/src/contracts/index.js";
+} from "@timbre/shared";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..", "..", "..");
 const SCOUT_FALLBACK = resolve(REPO_ROOT, "data", "cache", "scout-state.json");

@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { approvePending, hasPending } from "../pipeline/planApproval.js";
 import { emit, markCancelled } from "../bus/eventLog.js";
 import { startRun } from "../pipeline/run.js";
-import type { RunRequest } from "../../../shared/src/contracts/index.js";
+import type { RunRequest } from "@timbre/shared";
 
 export const runsRouter = Router();
 
@@ -27,7 +27,7 @@ runsRouter.post("/", async (req: Request, res: Response) => {
 
 // POST /api/runs/:id/plan-approval — resolves the suspended Research stage.
 runsRouter.post("/:id/plan-approval", (req: Request, res: Response) => {
-  const runId = req.params.id;
+  const runId = req.params.id as string;
   if (!hasPending(runId)) {
     res.status(409).json({ error: "no_plan_pending" });
     return;
@@ -54,6 +54,6 @@ runsRouter.post("/:id/plan-approval", (req: Request, res: Response) => {
 // POST /api/runs/:id/cancel — task 11 stub (cosmetic flag only, no real
 // API cancel per master §8 / MINIMUM-VIABLE).
 runsRouter.post("/:id/cancel", (req: Request, res: Response) => {
-  markCancelled(req.params.id);
+  markCancelled(req.params.id as string);
   res.json({ ok: true, halted_at: new Date().toISOString() });
 });

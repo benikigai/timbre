@@ -5,7 +5,7 @@ import { env, allowedOrigins } from "./env.js";
 import { eventsRouter } from "./routes/events.js";
 import { scoutRouter } from "./routes/scout.js";
 import { runsRouter } from "./routes/runs.js";
-import type { HealthResponse } from "../../shared/src/contracts/index.js";
+import type { HealthResponse } from "@timbre/shared";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..", "..");
 const CACHE_DIR = resolve(REPO_ROOT, "data", "cache");

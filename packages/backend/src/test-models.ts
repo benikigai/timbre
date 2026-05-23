@@ -25,7 +25,7 @@ async function test() {
     console.log('gemini-2.5-flash-preview-tts: SUCCESS');
     // Check if there is audio in candidates
     const part = res.candidates?.[0]?.content?.parts?.[0];
-    if (part?.inlineData) {
+    if (part?.inlineData?.data) {
       console.log('Audio bytes received!', part.inlineData.mimeType, part.inlineData.data.substring(0, 100) + '...');
     } else {
       console.log('No audio bytes received in part:', JSON.stringify(part));

@@ -6,7 +6,7 @@ import type {
   Candidate,
   Alert,
   ScoutStateResponse,
-} from "../../../shared/src/contracts/index.js";
+} from "@timbre/shared";
 
 interface State {
   latest_tick: ScoutTickResult | null;

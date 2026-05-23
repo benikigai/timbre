@@ -16,7 +16,7 @@
 // Strategy: locate the LAST TIMBRE_TICK_START..END block; split on section markers;
 // JSON-parse each except LS which is raw text. Strict on markers, lenient on whitespace.
 
-import type { Candidate, Alert } from "../../../shared/src/contracts/index.js";
+import type { Candidate, Alert } from "@timbre/shared";
 
 export interface ParsedTickBlock {
   tick_id: string;
