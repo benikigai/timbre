@@ -31,7 +31,7 @@ export default function DemoPage() {
     demoCached: flags.demoCached,
     cacheFixture: flags.cacheFixture,
   });
-  const { scoutState, connected: scoutConnected } = useScoutState();
+  const { scoutState, connected: scoutConnected, scanning: scoutScanning } = useScoutState();
 
   // Click a Scout candidate → start live run with that title as the topic.
   const handleCandidateClick = async (c: Candidate) => {
@@ -57,6 +57,7 @@ export default function DemoPage() {
         <ScoutPanel
           scoutState={scoutState}
           onCandidateClick={!runId ? handleCandidateClick : undefined}
+          scanning={scoutScanning}
         />
       }
       centerContent={

@@ -1,9 +1,12 @@
+import { useState } from "react";
 import type { ScoutStateResponse, Candidate } from "@timbre/shared/contracts";
 import { PulsingDot } from "../primitives/PulsingDot";
+import { triggerScout } from "../api/scout";
 
 interface ScoutPanelProps {
   scoutState: ScoutStateResponse | null;
   onCandidateClick?: (candidate: Candidate) => void;
+  scanning?: { tick_id: string; at: string } | null;
 }
 
 function relativeTime(iso: string): string {
@@ -17,25 +20,40 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export function ScoutPanel({ scoutState, onCandidateClick }: ScoutPanelProps) {
+export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPanelProps) {
   const tick = scoutState?.latest_tick;
   const candidates = scoutState?.candidates ?? [];
   const alerts = scoutState?.alerts ?? [];
   const tickHistory = scoutState?.tick_history ?? [];
   const topAlert = alerts[0];
+  const [refreshing, setRefreshing] = useState(false);
+  const isWorking = !!scanning || refreshing;
+
+  const handleRefresh = async () => {
+    if (isWorking) return;
+    setRefreshing(true);
+    try {
+      await triggerScout({});
+    } catch {
+      /* surface elsewhere if needed */
+    } finally {
+      // Backend keeps running even if HTTP times out; reset after a generous window.
+      setTimeout(() => setRefreshing(false), 300_000);
+    }
+  };
 
   return (
     <div className="p-4 flex flex-col gap-4 font-[family-name:var(--font-sans)]">
       {/* Tick header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <PulsingDot variant={tick ? "active" : "idle"} size={8} />
+          <PulsingDot variant={isWorking ? "active" : tick ? "active" : "idle"} size={8} />
           <span className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
             Scout
           </span>
         </div>
         <span className="font-[family-name:var(--font-mono)] text-[10px] text-[color:var(--color-ink-mute)]">
-          {tickHistory.length} ticks
+          {tickHistory.length} tick{tickHistory.length === 1 ? "" : "s"}
         </span>
       </div>
 
@@ -43,17 +61,48 @@ export function ScoutPanel({ scoutState, onCandidateClick }: ScoutPanelProps) {
         Antigravity managed agent · always-on Linux sandbox · scores
         RSS / HN / arXiv against your voice DNA every hour.
       </div>
+
+      {/* Live activity ribbon — shows what Scout is doing RIGHT NOW */}
+      {isWorking ? (
+        <div className="rounded-lg border border-[color:var(--color-amber)]/40 bg-[color:var(--color-amber)]/8 p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <PulsingDot variant="active" size={6} />
+            <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-amber)]">
+              scanning live
+            </span>
+          </div>
+          <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] leading-snug">
+            Cloning timbre-scout-config into sandbox at /workspace/scout · fetching 8 sources × 24h window · scoring against voice DNA.
+          </div>
+          <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
+            Antigravity ticks take 60–180s. Streaming…
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={handleRefresh}
+          className="self-start font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-[color:var(--color-sage)]/40 text-[color:var(--color-sage)] hover:bg-[color:var(--color-sage)]/10 transition"
+        >
+          ↻ Refresh now
+        </button>
+      )}
       {tick ? (
-        <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)]">
-          last tick {relativeTime(tick.completed_at)} · {tick.candidates_count} candidates · +{tick.new_candidates_count} new
+        <div className="flex flex-col gap-1">
+          <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)]">
+            last tick {relativeTime(tick.completed_at)} · {tick.candidates_count} candidates · +{tick.new_candidates_count} new
+          </div>
+          <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
+            scanned 8 sources · scored {tick.candidates_count} · {alerts.length} alert{alerts.length === 1 ? "" : "s"} above 0.85 threshold
+          </div>
         </div>
       ) : candidates.length > 0 ? (
         <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
-          Showing cached snapshot. Trigger a tick to refresh.
+          Showing cached snapshot. Hit refresh to scan now.
         </div>
       ) : (
         <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
-          No ticks yet — fire one via POST /api/scout/trigger.
+          No ticks yet. Hit refresh to fire one.
         </div>
       )}
 

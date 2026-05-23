@@ -7,6 +7,7 @@ import { getScoutState } from "../api/scout";
 interface UseScoutStateResult {
   scoutState: ScoutStateResponse | null;
   connected: boolean;
+  scanning: { tick_id: string; at: string } | null;
 }
 
 export function useScoutState(): UseScoutStateResult {
@@ -48,9 +49,16 @@ export function useScoutState(): UseScoutStateResult {
     };
   }, []);
 
+  // Track in-progress tick so the UI can show "scanning…" state.
+  const [scanning, setScanning] = useState<{ tick_id: string; at: string } | null>(null);
+
   const handlers = useMemo(
     () => ({
+      "scout.tick_started": (data: { tick_id: string; at: string }) => {
+        setScanning({ tick_id: data.tick_id, at: data.at });
+      },
       "scout.tick_completed": (tick: ScoutTickResult) => {
+        setScanning(null);
         setScoutState((prev: ScoutStateResponse | null) => {
           if (!prev) {
             return {
@@ -71,10 +79,11 @@ export function useScoutState(): UseScoutStateResult {
           };
         });
       },
+      "scout.tick_error": () => setScanning(null),
     }),
     [],
   );
 
   const { connected } = useScoutEvents(handlers);
-  return { scoutState, connected };
+  return { scoutState, connected, scanning };
 }
