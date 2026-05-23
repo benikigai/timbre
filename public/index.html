@@ -48,18 +48,18 @@
         content: ""; position: absolute; inset: -20%; filter: blur(100px);
       }
       .aurora::before {
-        opacity: 0.38;
+        opacity: 0.55;
         background:
-          radial-gradient(45% 60% at 20% 30%, var(--sage-deep) 0%, transparent 65%),
-          radial-gradient(40% 55% at 80% 75%, var(--amber-hot) 0%, transparent 65%);
-        animation: drift-a 42s ease-in-out infinite alternate;
+          radial-gradient(45% 60% at 20% 25%, var(--sage) 0%, transparent 60%),
+          radial-gradient(45% 55% at 80% 75%, var(--amber-hot) 0%, transparent 60%);
+        animation: drift-a 38s ease-in-out infinite alternate;
       }
       .aurora::after {
-        opacity: 0.28;
+        opacity: 0.42;
         background:
-          radial-gradient(40% 55% at 75% 25%, var(--sage) 0%, transparent 60%),
-          radial-gradient(35% 50% at 25% 75%, var(--amber) 0%, transparent 60%);
-        animation: drift-b 56s ease-in-out infinite alternate;
+          radial-gradient(40% 55% at 70% 20%, var(--amber) 0%, transparent 60%),
+          radial-gradient(40% 55% at 30% 80%, var(--sage-deep) 0%, transparent 60%);
+        animation: drift-b 50s ease-in-out infinite alternate;
         mix-blend-mode: screen;
       }
       @keyframes drift-a {
@@ -104,7 +104,7 @@
         margin: 0 0 1.75rem; color: var(--ink);
       }
       .wordmark .gradient {
-        background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 40%, var(--grad-3) 75%, var(--grad-4) 100%);
+        background: linear-gradient(135deg, var(--sage) 0%, var(--amber) 55%, var(--gold) 100%);
         background-size: 200% 200%;
         -webkit-background-clip: text; background-clip: text;
         -webkit-text-fill-color: transparent; color: transparent;
