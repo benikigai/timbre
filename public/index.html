@@ -102,30 +102,6 @@
       /* ───── page layout ───── */
       .page { position: relative; z-index: 3; min-height: 100vh; display: flex; flex-direction: column; }
 
-      /* ───── masthead (edge-to-edge wordmark, scrolls past) ───── */
-      .masthead {
-        padding: 3rem 2rem 1rem;
-        text-align: center;
-        position: relative;
-      }
-      .masthead .wordmark {
-        font-family: var(--font-display); font-weight: 200; font-style: normal;
-        font-size: clamp(4rem, 19vw, 17rem);
-        font-variation-settings: "opsz" 144, "SOFT" 50;
-        line-height: 0.9; letter-spacing: -0.05em;
-        margin: 0; color: var(--ink); opacity: 0.96;
-        white-space: nowrap; overflow: hidden;
-      }
-      .masthead .wordmark .dot {
-        background: linear-gradient(135deg, var(--sage) 0%, var(--amber) 55%, var(--gold) 100%);
-        -webkit-background-clip: text; background-clip: text;
-        -webkit-text-fill-color: transparent; color: transparent;
-      }
-      .masthead .rule {
-        margin: 1rem auto 0; max-width: calc(100% - 4rem);
-        height: 1px; background: linear-gradient(90deg, transparent 0%, var(--hairline) 20%, var(--hairline) 80%, transparent 100%);
-      }
-
       /* ───── footer wordmark decoration ───── */
       .foot-mark {
         text-align: center; overflow: hidden;
@@ -429,10 +405,6 @@
     <div class="grain" aria-hidden="true"></div>
 
     <div class="page">
-      <section class="masthead" aria-hidden="true">
-        <h1 class="wordmark">Timbre<span class="dot">.</span></h1>
-      </section>
-
       <header class="nav">
         <div class="brand">
           <svg class="spark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
