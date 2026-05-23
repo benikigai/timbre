@@ -51,14 +51,18 @@ export async function runScoutTick(opts: ScoutTickOptions = {}): Promise<ScoutTi
     const environment = envIdToUse ?? scoutEnvironment();
 
     // Per antigravity-agent docs: store=true REQUIRED, background=false (default).
-    // Returns synchronously when the sandbox loop completes.
-    const interaction = await genai.interactions.create({
-      agent: BASE_AGENT,
-      environment,
-      input:
-        "Read /workspace/scout/AGENTS.md and follow the tick protocol exactly. End your output by printing the TIMBRE_TICK block verbatim per the AGENTS.md 'Tick output contract' section.",
-      store: true,
-    });
+    // Returns synchronously when the sandbox loop completes — can take 1-5 min,
+    // so override the SDK's default client timeout.
+    const interaction = await genai.interactions.create(
+      {
+        agent: BASE_AGENT,
+        environment,
+        input:
+          "Read /workspace/scout/AGENTS.md and follow the tick protocol exactly. End your output by printing the TIMBRE_TICK block verbatim per the AGENTS.md 'Tick output contract' section.",
+        store: true,
+      },
+      { timeout: 600_000 },
+    );
 
     if (interaction.status !== "completed") {
       throw new Error(`scout tick non-completed status: ${interaction.status}`);
