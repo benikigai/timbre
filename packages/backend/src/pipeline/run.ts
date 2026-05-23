@@ -22,6 +22,10 @@ const SCOUT_FALLBACK = resolve(REPO_ROOT, "data", "cache", "scout-state.json");
 const VOICE_DNA_PATH = resolve(REPO_ROOT, "data", "voice", "voice_dna.json");
 const VOICE_CORPUS_DIR = resolve(REPO_ROOT, "data", "voice", "voice_corpus");
 const DEMO_FIXTURE = "agentic-web-infra";
+// Cached fixture is ~104s of t_offset_ms; 1.5x compresses to ~70s so
+// the demo lands well inside 1.5 min with margin for SSE overhead.
+// Drop to 1.0 for true real-time replay.
+const REPLAY_SPEED = 1.5;
 
 async function loadVoiceProfileFromDisk(): Promise<{
   profile: unknown;
@@ -100,6 +104,7 @@ export async function startRun(req: RunRequest): Promise<StartRunResult> {
         await replay({
           runId,
           fixture: req.cache_fixture ?? DEMO_FIXTURE,
+          speed: REPLAY_SPEED,
         });
         emit(runId, "run.completed", {
           run_id: runId,
@@ -174,7 +179,7 @@ export async function startRun(req: RunRequest): Promise<StartRunResult> {
 
       // Hand off to cache replay (per MINIMUM-VIABLE: don't actually run DR
       // execution — would take 2-20 min).
-      await replay({ runId, fixture: DEMO_FIXTURE });
+      await replay({ runId, fixture: DEMO_FIXTURE, speed: REPLAY_SPEED });
 
       emit(runId, "run.completed", {
         run_id: runId,
