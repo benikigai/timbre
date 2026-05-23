@@ -82,7 +82,7 @@
 
       /* ───── waveform: the brand-meaning visual (timbre = tonal quality of voice) ───── */
       .waveform { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
-      .waveform svg { position: absolute; left: -10%; top: 0; width: 220%; height: 100vh; opacity: 0.35; }
+      .waveform svg { position: absolute; left: -10%; top: 0; width: 220%; height: 100vh; opacity: 0.18; }
       .waveform svg .wave-a { animation: wave-drift-a 80s linear infinite; }
       .waveform svg .wave-b { animation: wave-drift-b 110s linear infinite reverse; }
       .waveform svg .wave-c { animation: wave-drift-c 140s linear infinite; }
@@ -381,9 +381,9 @@
         <defs>
           <linearGradient id="wave-grad" x1="0" y1="0" x2="2400" y2="0" gradientUnits="userSpaceOnUse">
             <stop offset="0" stop-color="#7FA98B" stop-opacity="0" />
-            <stop offset="0.18" stop-color="#7FA98B" stop-opacity="0.85" />
-            <stop offset="0.5" stop-color="#E8A574" stop-opacity="1" />
-            <stop offset="0.82" stop-color="#F4D8A0" stop-opacity="0.8" />
+            <stop offset="0.22" stop-color="#7FA98B" stop-opacity="0.6" />
+            <stop offset="0.5" stop-color="#E8A574" stop-opacity="0.75" />
+            <stop offset="0.78" stop-color="#F4D8A0" stop-opacity="0.55" />
             <stop offset="1" stop-color="#E8A574" stop-opacity="0" />
           </linearGradient>
         </defs>
