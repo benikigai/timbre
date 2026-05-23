@@ -81,18 +81,18 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
               type="button"
               onClick={startCachedDemo}
               disabled={starting}
-              className="group shrink-0 inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full border border-[color:var(--color-amber)]/45 bg-[color:var(--color-amber)]/8 text-[color:var(--color-amber)] hover:bg-[color:var(--color-amber)]/14 hover:border-[color:var(--color-amber)]/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group shrink-0 inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full border border-[color:var(--color-amber)]/30 text-[color:var(--color-amber)]/75 hover:border-[color:var(--color-amber)]/65 hover:text-[color:var(--color-amber)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Start the demo"
             >
               {starting ? (
-                <PulsingDot variant="active" size={12} />
+                <PulsingDot variant="active" size={10} />
               ) : (
                 <svg
-                  width="26"
-                  height="26"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className="ml-1 transition-transform group-hover:scale-110"
+                  className="ml-0.5 transition-transform group-hover:scale-105"
                 >
                   <path d="M8 5v14l11-7z" />
                 </svg>

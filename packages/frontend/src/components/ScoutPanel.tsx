@@ -92,22 +92,26 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
 
   return (
     <div className="p-4 flex flex-col gap-4 font-[family-name:var(--font-sans)]">
-      {/* Tick header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <PulsingDot variant={isWorking ? "active" : tick ? "active" : "idle"} size={8} />
-          <span className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+      {/* Editorial header — Fraunces wordmark with italic-amber accent, same treatment as landing hero */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="font-[family-name:var(--font-display)] font-light text-[1.75rem] leading-none tracking-[-0.01em] text-[color:var(--color-ink)]">
             Scout
-          </span>
+            <em className="italic font-light text-[color:var(--color-amber)] ml-1.5">live.</em>
+          </h2>
+          <div className="flex items-center gap-1.5 pt-1">
+            <PulsingDot variant={isWorking ? "active" : tick ? "active" : "idle"} size={7} />
+            <span className="font-[family-name:var(--font-mono)] text-[10px] text-[color:var(--color-ink-mute)] tabular-nums">
+              {tickHistory.length} tick{tickHistory.length === 1 ? "" : "s"}
+            </span>
+          </div>
         </div>
-        <span className="font-[family-name:var(--font-mono)] text-[10px] text-[color:var(--color-ink-mute)]">
-          {tickHistory.length} tick{tickHistory.length === 1 ? "" : "s"}
-        </span>
-      </div>
-
-      <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-relaxed">
-        Managed agent on Google Antigravity (new at I/O 2026) ·
-        always-on Linux sandbox · scores 10 feeds against your voice DNA hourly.
+        <p className="text-[10px] font-[family-name:var(--font-mono)] uppercase tracking-[0.08em] text-[color:var(--color-ink-mute)] leading-relaxed">
+          Managed agent · Google Antigravity · I/O 2026
+        </p>
+        <p className="text-[11px] text-[color:var(--color-ink-dim)] leading-relaxed">
+          Always-on Linux sandbox. Scores 10 feeds against your voice DNA hourly.
+        </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-sage)]/30 text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/5">
