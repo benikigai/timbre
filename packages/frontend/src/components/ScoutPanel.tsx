@@ -20,6 +20,19 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+function durationSeconds(startedAt: string, completedAt: string): number {
+  const start = new Date(startedAt).getTime();
+  const end = new Date(completedAt).getTime();
+  return Math.max(0, Math.round((end - start) / 1000));
+}
+
+function shortEnv(envId: string): string {
+  // Antigravity env IDs are long UUIDs — keep the prefix and first 6 chars.
+  const parts = envId.split(/[:_-]/);
+  const head = parts[0] ?? envId;
+  return head.length > 8 ? head.slice(0, 8) : head;
+}
+
 export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPanelProps) {
   const tick = scoutState?.latest_tick;
   const candidates = scoutState?.candidates ?? [];
@@ -58,8 +71,21 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
       </div>
 
       <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-relaxed">
-        Antigravity managed agent · always-on Linux sandbox · scores
+        Managed agent · always-on Linux sandbox · scores
         RSS / HN / arXiv against your voice DNA every hour.
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-sage)]/30 text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/5">
+          antigravity-preview-05-2026
+        </span>
+        {tick?.env_id && (
+          <span
+            className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-mute)]"
+            title={`Sandbox env: ${tick.env_id}`}
+          >
+            env: {shortEnv(tick.env_id)}
+          </span>
+        )}
       </div>
 
       {/* Live activity ribbon — shows what Scout is doing RIGHT NOW */}
@@ -90,7 +116,7 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
       {tick ? (
         <div className="flex flex-col gap-1">
           <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)]">
-            last tick {relativeTime(tick.completed_at)} · {tick.candidates_count} candidates · +{tick.new_candidates_count} new
+            last tick {relativeTime(tick.completed_at)} · ran {durationSeconds(tick.started_at, tick.completed_at)}s · +{tick.new_candidates_count} new
           </div>
           <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
             scanned 8 sources · scored {tick.candidates_count} · {alerts.length} alert{alerts.length === 1 ? "" : "s"} above 0.85 threshold
@@ -188,6 +214,30 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
         </ul>
       </div>
 
+      {/* Recent ticks — chronological proof the agent has run more than once */}
+      {tickHistory.length > 0 && (
+        <div>
+          <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2">
+            Recent ticks
+          </div>
+          <ul className="flex flex-col gap-1">
+            {tickHistory.slice(0, 5).map((t) => (
+              <li
+                key={t.tick_id}
+                className="flex items-baseline justify-between gap-2 text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)]"
+              >
+                <span className="truncate text-[color:var(--color-ink-dim)]">
+                  {relativeTime(t.at)}
+                </span>
+                <span className="tabular-nums" style={{ color: t.new_candidates_count > 0 ? "var(--color-sage)" : undefined }}>
+                  +{t.new_candidates_count} new
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Collapsible ls block — the cold-open prop */}
       {tick?.ls_output_text && (
         <details className="mt-2">
@@ -196,6 +246,18 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
           </summary>
           <pre className="mt-2 p-2 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] whitespace-pre overflow-x-auto leading-snug">
             {tick.ls_output_text}
+          </pre>
+        </details>
+      )}
+
+      {/* Raw agent stdout — the strongest 'this is the real agent talking' signal */}
+      {tick?.output_text_excerpt && (
+        <details>
+          <summary className="cursor-pointer font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink-dim)]">
+            agent stdout · last tick
+          </summary>
+          <pre className="mt-2 p-2 bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] rounded text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-dim)] whitespace-pre-wrap break-words leading-snug max-h-64 overflow-y-auto">
+            {tick.output_text_excerpt}
           </pre>
         </details>
       )}
