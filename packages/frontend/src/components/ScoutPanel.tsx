@@ -33,6 +33,41 @@ function shortEnv(envId: string): string {
   return head.length > 8 ? head.slice(0, 8) : head;
 }
 
+function formatUptime(startedAt: string): string {
+  const seconds = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const remMin = minutes % 60;
+  if (hours < 24) return remMin ? `${hours}h ${remMin}m` : `${hours}h`;
+  return `${Math.floor(hours / 24)}d ${hours % 24}h`;
+}
+
+// The 10 sources Scout monitors per sources.yaml in timbre-scout-config.
+// Order matters: groups by kind so the rail reads as a tidy grid.
+const MONITORED_SOURCES: { id: string; label: string; kind: "hn" | "arxiv" | "rss" | "x" }[] = [
+  { id: "hn_tag:hn-frontpage",   label: "hn-frontpage",   kind: "hn" },
+  { id: "hn_tag:hn-newest",      label: "hn-newest",      kind: "hn" },
+  { id: "arxiv:arxiv-cs-ai",     label: "arxiv cs.AI",    kind: "arxiv" },
+  { id: "arxiv:arxiv-cs-lg",     label: "arxiv cs.LG",    kind: "arxiv" },
+  { id: "rss:rss-openai",        label: "openai",         kind: "rss" },
+  { id: "rss:rss-deepmind",      label: "deepmind",       kind: "rss" },
+  { id: "rss:rss-anthropic",     label: "anthropic",      kind: "rss" },
+  { id: "rss:rss-simonwillison", label: "simonwillison",  kind: "rss" },
+  { id: "rss:rss-latent-space",  label: "latent.space",   kind: "rss" },
+  { id: "x_user:x-karpathy",     label: "@karpathy",      kind: "x" },
+];
+
+// Antigravity's tool primitives Scout uses, per specs/00-master.md §3.
+const ANTIGRAVITY_TOOLS = ["code_execution", "google_search", "url_context", "filesystem"] as const;
+
+function bySourceCount(candidates: Candidate[]): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const c of candidates) m.set(c.source, (m.get(c.source) ?? 0) + 1);
+  return m;
+}
+
 export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPanelProps) {
   const tick = scoutState?.latest_tick;
   const candidates = scoutState?.candidates ?? [];
@@ -71,21 +106,42 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
       </div>
 
       <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-relaxed">
-        Managed agent · always-on Linux sandbox · scores
-        RSS / HN / arXiv against your voice DNA every hour.
+        Managed agent on Google Antigravity (new at I/O 2026) ·
+        always-on Linux sandbox · scores 10 feeds against your voice DNA hourly.
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-sage)]/30 text-[color:var(--color-sage)] bg-[color:var(--color-sage)]/5">
           antigravity-preview-05-2026
         </span>
         {tick?.env_id && (
-          <span
-            className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-mute)]"
-            title={`Sandbox env: ${tick.env_id}`}
+          <a
+            href={`https://antigravity.google.com/envs/${tick.env_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-amber)] hover:border-[color:var(--color-amber)]/40 transition-colors"
+            title={`Sandbox env: ${tick.env_id} — open in Antigravity`}
           >
-            env: {shortEnv(tick.env_id)}
-          </span>
+            env: {shortEnv(tick.env_id)} ↗
+          </a>
         )}
+      </div>
+
+      {/* Capability rail — proof of what Antigravity actually exposes to the agent */}
+      <div className="flex flex-col gap-1.5">
+        <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+          Capabilities
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {ANTIGRAVITY_TOOLS.map((t) => (
+            <span
+              key={t}
+              className="font-[family-name:var(--font-mono)] text-[9px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-ink-dim)]"
+              title={`Antigravity tool: ${t}`}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Live activity ribbon — shows what Scout is doing RIGHT NOW */}
@@ -119,8 +175,13 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
             last tick {relativeTime(tick.completed_at)} · ran {durationSeconds(tick.started_at, tick.completed_at)}s · +{tick.new_candidates_count} new
           </div>
           <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
-            scanned 8 sources · scored {tick.candidates_count} · {alerts.length} alert{alerts.length === 1 ? "" : "s"} above 0.85 threshold
+            scanned {MONITORED_SOURCES.length} sources · scored {tick.candidates_count} · {alerts.length} alert{alerts.length === 1 ? "" : "s"} above 0.85 threshold
           </div>
+          {tickHistory.length > 0 && (
+            <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
+              sandbox up {formatUptime(tickHistory[tickHistory.length - 1].at)} · {tickHistory.length} tick{tickHistory.length === 1 ? "" : "s"} this session
+            </div>
+          )}
         </div>
       ) : candidates.length > 0 ? (
         <div className="text-[11px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic">
@@ -131,6 +192,47 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
           No ticks yet. Hit refresh to fire one.
         </div>
       )}
+
+      {/* Sources monitored — visual diversity proof (10 chips, hit counts from latest tick) */}
+      <div>
+        <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
+          <span>Sources monitored</span>
+          <span className="normal-case tracking-normal text-[color:var(--color-ink-mute)]">
+            {MONITORED_SOURCES.length} feeds
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          {(() => {
+            const counts = bySourceCount(candidates);
+            return MONITORED_SOURCES.map((s) => {
+              const hits = counts.get(s.id) ?? 0;
+              const active = hits > 0;
+              return (
+                <div
+                  key={s.id}
+                  className={`flex items-center justify-between gap-1.5 px-1.5 py-1 rounded border ${
+                    active
+                      ? "border-[color:var(--color-sage)]/30 bg-[color:var(--color-sage)]/5"
+                      : "border-[color:var(--color-hairline)]"
+                  }`}
+                  title={`${s.id} — ${hits} candidate${hits === 1 ? "" : "s"} in latest tick`}
+                >
+                  <span className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-dim)] truncate">
+                    {s.label}
+                  </span>
+                  <span
+                    className={`font-[family-name:var(--font-mono)] text-[9px] tabular-nums ${
+                      active ? "text-[color:var(--color-sage)]" : "text-[color:var(--color-ink-mute)]"
+                    }`}
+                  >
+                    {hits}
+                  </span>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      </div>
 
       {/* Top alert */}
       {topAlert && (
@@ -214,29 +316,46 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
         </ul>
       </div>
 
-      {/* Recent ticks — chronological proof the agent has run more than once */}
-      {tickHistory.length > 0 && (
-        <div>
-          <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2">
-            Recent ticks
+      {/* Tick cadence chart — visual rhythm of the always-on agent */}
+      {tickHistory.length > 0 && (() => {
+        const recent = tickHistory.slice(0, 18).reverse();
+        const peak = Math.max(1, ...recent.map((t) => t.new_candidates_count));
+        const totalNew = recent.reduce((sum, t) => sum + t.new_candidates_count, 0);
+        return (
+          <div>
+            <div className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] mb-2 flex items-baseline justify-between">
+              <span>Cadence · last {recent.length} ticks</span>
+              <span className="normal-case tracking-normal text-[color:var(--color-sage)] tabular-nums">
+                +{totalNew} new
+              </span>
+            </div>
+            <div className="flex items-end gap-0.5 h-10 px-0.5">
+              {recent.map((t) => {
+                const heightPct = (t.new_candidates_count / peak) * 100;
+                const isEmpty = t.new_candidates_count === 0;
+                return (
+                  <div
+                    key={t.tick_id}
+                    className="flex-1 rounded-t-sm transition-colors"
+                    style={{
+                      height: isEmpty ? "6%" : `${Math.max(12, heightPct)}%`,
+                      background: isEmpty
+                        ? "var(--color-hairline)"
+                        : "var(--color-sage)",
+                      opacity: isEmpty ? 0.5 : 0.55 + (t.new_candidates_count / peak) * 0.45,
+                    }}
+                    title={`${relativeTime(t.at)} · +${t.new_candidates_count} new`}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex justify-between text-[9px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] mt-1">
+              <span>{relativeTime(recent[0].at)}</span>
+              <span>now</span>
+            </div>
           </div>
-          <ul className="flex flex-col gap-1">
-            {tickHistory.slice(0, 5).map((t) => (
-              <li
-                key={t.tick_id}
-                className="flex items-baseline justify-between gap-2 text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)]"
-              >
-                <span className="truncate text-[color:var(--color-ink-dim)]">
-                  {relativeTime(t.at)}
-                </span>
-                <span className="tabular-nums" style={{ color: t.new_candidates_count > 0 ? "var(--color-sage)" : undefined }}>
-                  +{t.new_candidates_count} new
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Collapsible ls block — the cold-open prop */}
       {tick?.ls_output_text && (
