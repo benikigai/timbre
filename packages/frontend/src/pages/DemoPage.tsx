@@ -14,6 +14,7 @@ import { StyleProfilePanel } from "../components/StyleProfilePanel";
 import { VerifyOverlay } from "../components/VerifyOverlay";
 import { EditableDraft } from "../components/EditableDraft";
 import { ProofBeat } from "../components/ProofBeat";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { useRunStateMachine } from "../hooks/useRunStateMachine";
 import { useScoutState } from "../hooks/useScoutState";
 import { startRun } from "../api/runs";
@@ -64,40 +65,70 @@ export default function DemoPage() {
       onReset={runId ? handleReset : undefined}
       leftPanel={
         <>
-          <ScoutPanel
-            scoutState={scoutState}
-            onCandidateClick={!runId ? handleCandidateClick : undefined}
-            scanning={scoutScanning}
-          />
-          <StyleProfilePanel
-            overrideProfile={state.voiceGate?.approved ? state.voiceGate.profile : null}
-            edited={state.voiceGate?.edited ?? false}
-          />
+          <ErrorBoundary label="ScoutPanel">
+            <ScoutPanel
+              scoutState={scoutState}
+              onCandidateClick={!runId ? handleCandidateClick : undefined}
+              scanning={scoutScanning}
+            />
+          </ErrorBoundary>
+          <ErrorBoundary label="StyleProfilePanel">
+            <StyleProfilePanel
+              overrideProfile={state.voiceGate?.approved ? state.voiceGate.profile : null}
+              edited={state.voiceGate?.edited ?? false}
+            />
+          </ErrorBoundary>
         </>
       }
       centerContent={
         !runId ? (
           // Pre-run: editorial hero, no card chrome, horizontal padding scales
           <div className="px-6 md:px-12 min-h-full flex flex-col">
-            <DemoHero onRunStarted={setRunId} />
+            <ErrorBoundary label="DemoHero">
+              <DemoHero onRunStarted={setRunId} />
+            </ErrorBoundary>
           </div>
         ) : (
-          // Running: dashboard layout
+          // Running: dashboard layout — each panel wrapped so any single crash
+          // (e.g. EditableDraft's fetch erroring at run.completed) stays
+          // contained and doesn't blank the whole center.
           <div className="p-6 flex flex-col gap-6 min-h-full">
-            <RunControls onRunStarted={setRunId} runId={runId} />
-            <DiffView state={state} />
-            <ActivityFeed state={state} />
-            {state.completed && <EditableDraft state={state} runId={runId} />}
-            <MultiplexBoard state={state} />
-            {beat === "proof" && <ProofBeat />}
+            <ErrorBoundary label="RunControls">
+              <RunControls onRunStarted={setRunId} runId={runId} />
+            </ErrorBoundary>
+            <ErrorBoundary label="DiffView">
+              <DiffView state={state} />
+            </ErrorBoundary>
+            <ErrorBoundary label="ActivityFeed">
+              <ActivityFeed state={state} />
+            </ErrorBoundary>
+            {state.completed && (
+              <ErrorBoundary label="EditableDraft">
+                <EditableDraft state={state} runId={runId} />
+              </ErrorBoundary>
+            )}
+            <ErrorBoundary label="MultiplexBoard">
+              <MultiplexBoard state={state} />
+            </ErrorBoundary>
+            {beat === "proof" && (
+              <ErrorBoundary label="ProofBeat">
+                <ProofBeat />
+              </ErrorBoundary>
+            )}
           </div>
         )
       }
       overlays={
         <>
-          <PlanApprovalModal state={state} runId={runId} />
-          <VoiceProfileModal state={state} runId={runId} />
-          <VerifyOverlay state={state} />
+          <ErrorBoundary label="PlanApprovalModal">
+            <PlanApprovalModal state={state} runId={runId} />
+          </ErrorBoundary>
+          <ErrorBoundary label="VoiceProfileModal">
+            <VoiceProfileModal state={state} runId={runId} />
+          </ErrorBoundary>
+          <ErrorBoundary label="VerifyOverlay">
+            <VerifyOverlay state={state} />
+          </ErrorBoundary>
         </>
       }
     />
