@@ -153,10 +153,11 @@ multiplexRefineRouter.post("/refine", async (req: Request, res: Response) => {
         });
         console.log(`[multiplex.refine tts] ok jobId=${jobId}`);
       } else {
-        // ── Carousel: gemini-3-pro-image-preview, 3 slides
+        // ── Carousel: imagen-4.0-generate-001, 3 slides at 3:4 portrait
+        // (Imagen 4 supports 1:1, 9:16, 16:9, 4:3, 3:4 only — 4:5 returns 400)
         const slidePrompts = [1, 2, 3].map(
           (i) =>
-            `Slide ${i} of 3 for a technical founder's social carousel. Style: ${instruction}. Aspect 4:5 vertical. Minimalist composition, dark background, single bright accent, no text overlay.`,
+            `Slide ${i} of 3 for a technical founder's social carousel. Style: ${instruction}. Portrait 3:4 composition. Minimalist, dark background, single bright accent color, no text overlay.`,
         );
         const slideB64s: string[] = [];
         for (const prompt of slidePrompts) {
@@ -165,7 +166,7 @@ multiplexRefineRouter.post("/refine", async (req: Request, res: Response) => {
             prompt,
             config: {
               numberOfImages: 1,
-              aspectRatio: "4:5",
+              aspectRatio: "3:4",
             } as never,
           });
           const img = imgResp.generatedImages?.[0]?.image;
