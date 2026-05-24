@@ -5,7 +5,10 @@ export default function App() {
   return (
     <BrowserRouter basename="/app">
       <Routes>
-        <Route path="/" element={<DemoPage />} />
+        {/* / — locked cached demo (safe surface for judges) */}
+        <Route path="/" element={<DemoPage mode="cached" />} />
+        {/* /live — full live playground (Scout candidates, live Gemini APIs, refine inputs) */}
+        <Route path="/live" element={<DemoPage mode="live" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

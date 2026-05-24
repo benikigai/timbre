@@ -28,7 +28,16 @@ function getDemoFlags() {
   };
 }
 
-export default function DemoPage() {
+interface DemoPageProps {
+  // "cached" = locked surface, single play button, no live API entry points.
+  //   Used at /app/ — the URL judges hit. Can't break.
+  // "live" = full playground: Scout candidates clickable, live Gemini API
+  //   picker, advanced controls, refine inputs. At /app/live for iteration.
+  mode?: "cached" | "live";
+}
+
+export default function DemoPage({ mode = "live" }: DemoPageProps) {
+  const isCachedOnly = mode === "cached";
   const [runId, setRunId] = useState<string | null>(null);
   const flags = getDemoFlags();
   const { state, beat, connected: runConnected, reset } = useRunStateMachine(runId, {
@@ -68,7 +77,8 @@ export default function DemoPage() {
           <ErrorBoundary label="ScoutPanel">
             <ScoutPanel
               scoutState={scoutState}
-              onCandidateClick={!runId ? handleCandidateClick : undefined}
+              // Cached mode: candidates are read-only (no live-run kick off)
+              onCandidateClick={!runId && !isCachedOnly ? handleCandidateClick : undefined}
               scanning={scoutScanning}
             />
           </ErrorBoundary>
@@ -85,17 +95,32 @@ export default function DemoPage() {
           // Pre-run: editorial hero, no card chrome, horizontal padding scales
           <div className="px-6 md:px-12 min-h-full flex flex-col">
             <ErrorBoundary label="DemoHero">
-              <DemoHero onRunStarted={setRunId} />
+              <DemoHero onRunStarted={setRunId} cachedOnly={isCachedOnly} />
             </ErrorBoundary>
+            {!isCachedOnly && (
+              <p className="mt-6 font-mono text-[10px] text-[color:var(--color-ink-mute)]">
+                ↻ Locked cached demo is at <a href="/app/" className="text-[color:var(--color-sage)] hover:underline">/app/</a>
+              </p>
+            )}
+            {isCachedOnly && (
+              <p className="mt-6 font-mono text-[10px] text-[color:var(--color-ink-mute)]">
+                ⚡ Live API playground (Scout candidates, real Gemini calls):{" "}
+                <a href="/app/live" className="text-[color:var(--color-sage)] hover:underline">/app/live</a>
+              </p>
+            )}
           </div>
         ) : (
           // Running: dashboard layout — each panel wrapped so any single crash
           // (e.g. EditableDraft's fetch erroring at run.completed) stays
           // contained and doesn't blank the whole center.
           <div className="p-6 flex flex-col gap-6 min-h-full">
-            <ErrorBoundary label="RunControls">
-              <RunControls onRunStarted={setRunId} runId={runId} />
-            </ErrorBoundary>
+            {/* RunControls only on live page — hides the topic input + LIVE
+                toggle from the locked cached demo so judges can't switch modes. */}
+            {!isCachedOnly && (
+              <ErrorBoundary label="RunControls">
+                <RunControls onRunStarted={setRunId} runId={runId} />
+              </ErrorBoundary>
+            )}
             <ErrorBoundary label="DiffView">
               <DiffView state={state} />
             </ErrorBoundary>

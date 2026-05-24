@@ -9,6 +9,10 @@ import { RunControls } from "./RunControls";
 
 interface DemoHeroProps {
   onRunStarted: (runId: string) => void;
+  // cachedOnly mode hides the "Run live · real Gemini APIs" entry-point
+  // + the "or pick your own topic" link. Used at /app/ for the locked
+  // safe demo surface. Default false (full hero shown at /app/live).
+  cachedOnly?: boolean;
 }
 
 const DEFAULT_TOPIC = "The Shift to Agentic Web Infrastructure";
@@ -23,7 +27,8 @@ const BEATS = [
   { n: "07", label: "Multiplex", note: "fans out: TTS, radio, carousel, Veo" },
 ];
 
-export function DemoHero({ onRunStarted }: DemoHeroProps) {
+export function DemoHero({ onRunStarted, cachedOnly = false }: DemoHeroProps) {
+  // In cachedOnly mode we lock to "watch" — the setter is unused.
   const [mode, setMode] = useState<"watch" | "advanced">("watch");
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,28 +115,30 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
                 </span>
               </button>
 
-              <button
-                type="button"
-                onClick={startLiveDemo}
-                disabled={starting}
-                className="group flex items-center gap-4 px-5 py-4 rounded-xl border border-[color:var(--color-sage)]/30 hover:border-[color:var(--color-sage)]/65 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-left"
-              >
-                <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full border border-[color:var(--color-sage)]/35 text-[color:var(--color-sage)]/85 group-hover:text-[color:var(--color-sage)] group-hover:border-[color:var(--color-sage)]/70 transition-colors">
-                  {starting ? (
-                    <PulsingDot variant="active" size={8} />
-                  ) : (
-                    <PulsingDot variant="active" size={8} />
-                  )}
-                </span>
-                <span className="flex flex-col gap-0.5 min-w-0">
-                  <span className="font-[family-name:var(--font-display)] text-base text-[color:var(--color-ink)] leading-tight">
-                    Run live · real Gemini APIs
+              {!cachedOnly && (
+                <button
+                  type="button"
+                  onClick={startLiveDemo}
+                  disabled={starting}
+                  className="group flex items-center gap-4 px-5 py-4 rounded-xl border border-[color:var(--color-sage)]/30 hover:border-[color:var(--color-sage)]/65 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-left"
+                >
+                  <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full border border-[color:var(--color-sage)]/35 text-[color:var(--color-sage)]/85 group-hover:text-[color:var(--color-sage)] group-hover:border-[color:var(--color-sage)]/70 transition-colors">
+                    {starting ? (
+                      <PulsingDot variant="active" size={8} />
+                    ) : (
+                      <PulsingDot variant="active" size={8} />
+                    )}
                   </span>
-                  <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
-                    ~6 min · tokens accrue
+                  <span className="flex flex-col gap-0.5 min-w-0">
+                    <span className="font-[family-name:var(--font-display)] text-base text-[color:var(--color-ink)] leading-tight">
+                      Run live · real Gemini APIs
+                    </span>
+                    <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
+                      ~6 min · tokens accrue
+                    </span>
                   </span>
-                </span>
-              </button>
+                </button>
+              )}
             </div>
           </div>
 
@@ -173,13 +180,15 @@ export function DemoHero({ onRunStarted }: DemoHeroProps) {
               Default topic:{" "}
               <span className="text-[color:var(--color-ink-dim)]">{DEFAULT_TOPIC}</span>
             </span>
-            <button
-              type="button"
-              onClick={() => setMode("advanced")}
-              className="text-[color:var(--color-sage)] hover:text-[color:var(--color-amber)] transition-colors uppercase tracking-wider"
-            >
-              or pick your own topic →
-            </button>
+            {!cachedOnly && (
+              <button
+                type="button"
+                onClick={() => setMode("advanced")}
+                className="text-[color:var(--color-sage)] hover:text-[color:var(--color-amber)] transition-colors uppercase tracking-wider"
+              >
+                or pick your own topic →
+              </button>
+            )}
           </div>
 
           {error && (
