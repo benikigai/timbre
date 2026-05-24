@@ -30,16 +30,16 @@ export function VerifyOverlay({ state }: VerifyOverlayProps) {
   return (
     <div
       role="alert"
-      className="fixed right-6 top-24 z-50 w-[min(26rem,calc(100vw-3rem))] rounded-2xl border bg-[color:var(--color-bg)]/95 backdrop-blur-md shadow-2xl overflow-hidden"
+      className="fixed right-4 bottom-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-2xl border bg-[color:var(--color-bg)]/95 backdrop-blur-md shadow-2xl overflow-hidden"
       style={{
-        borderColor: "rgba(244, 216, 160, 0.45)", // amber/gold border
+        borderColor: "rgba(244, 216, 160, 0.45)",
         boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(244, 216, 160, 0.15)",
         animation: "slide-in 380ms cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     >
       <style>{`
         @keyframes slide-in {
-          from { transform: translateY(-10px) scale(0.98); opacity: 0; }
+          from { transform: translateY(10px) scale(0.98); opacity: 0; }
           to   { transform: translateY(0) scale(1); opacity: 1; }
         }
         @keyframes pulse-flow {
@@ -68,18 +68,33 @@ export function VerifyOverlay({ state }: VerifyOverlayProps) {
         }
       `}</style>
 
-      {/* Top Banner indicating Antigravity SDK Hook Filter */}
+      {/* Plain-English header + close button so users know what this is */}
       <div className="px-4 py-3 bg-gradient-to-r from-[color:var(--color-bg)] to-amber-950/10 border-b border-[color:var(--color-hairline)] flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <span className="font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-gold)]">
-            Antigravity SDK 2.0
-          </span>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-[family-name:var(--font-display)] text-sm text-[color:var(--color-gold)]">
+              🛡️ Verify caught a drift
+            </span>
+            <span className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] leading-snug">
+              Voice rewrote a claim into something snappier but false. Antigravity post-tool hook intercepted + restored the original.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCollapsed(true)}
+            className="shrink-0 -mt-0.5 -mr-1 w-6 h-6 rounded-full flex items-center justify-center text-[color:var(--color-ink-mute)] hover:bg-[color:var(--color-hairline)] hover:text-[color:var(--color-ink)] transition"
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
           <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-[family-name:var(--font-mono)]">
             HOOK ACTIVE
           </span>
-        </div>
-        <div className="text-[9px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] uppercase tracking-wider">
-          hook_policy: ENFORCE_FIDELITY
+          <span className="text-[9px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] uppercase tracking-wider">
+            antigravity sdk 2.0 · ENFORCE_FIDELITY
+          </span>
         </div>
       </div>
 
