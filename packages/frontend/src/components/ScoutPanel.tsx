@@ -93,7 +93,7 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
   return (
     <div className="p-4 flex flex-col gap-4 font-[family-name:var(--font-sans)]">
       {/* Editorial header — Fraunces wordmark with italic-amber accent, same treatment as landing hero */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="font-[family-name:var(--font-display)] font-light text-[1.75rem] leading-none tracking-[-0.01em] text-[color:var(--color-ink)]">
             Scout
@@ -106,11 +106,22 @@ export function ScoutPanel({ scoutState, onCandidateClick, scanning }: ScoutPane
             </span>
           </div>
         </div>
-        <p className="text-[12px] font-[family-name:var(--font-mono)] uppercase tracking-[0.08em] text-[color:var(--color-ink-mute)] leading-relaxed">
-          Managed agent · Google Antigravity · I/O 2026
-        </p>
+
+        {/* Antigravity branded callout — sage-bordered, prominent product attribution */}
+        <div className="border-l-2 border-[color:var(--color-sage)] pl-3 py-1 flex flex-col gap-1">
+          <p className="font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-[0.1em] text-[color:var(--color-sage)]">
+            Powered by
+          </p>
+          <p className="font-[family-name:var(--font-display)] text-[1.15rem] leading-tight font-light text-[color:var(--color-ink)]">
+            Google <em className="italic text-[color:var(--color-amber)]">Antigravity.</em>
+          </p>
+          <p className="text-[12px] text-[color:var(--color-ink-dim)] leading-snug">
+            The new managed-agent runtime announced at I/O 2026. Always-on Linux sandbox, persistent across days.
+          </p>
+        </div>
+
         <p className="text-[13px] text-[color:var(--color-ink-dim)] leading-relaxed">
-          Always-on Linux sandbox. Scores 10 feeds against your voice DNA hourly.
+          Scout is a `timbre_scout` agent that scores 10 feeds against your voice DNA, hourly.
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
