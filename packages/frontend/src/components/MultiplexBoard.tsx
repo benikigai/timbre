@@ -183,15 +183,15 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-baseline justify-between gap-3 flex-wrap">
             <h3 className="font-[family-name:var(--font-display)] font-light text-[1.625rem] leading-none tracking-[-0.015em] text-[color:var(--color-ink)]">
-              Multiplex.
-              <em className="italic font-light text-[color:var(--color-amber)] ml-2">one article, four channels.</em>
+              Content artifacts.
+              <em className="italic font-light text-[color:var(--color-amber)] ml-2">one article, four formats.</em>
             </h3>
             <span className="font-mono text-[11px] uppercase tracking-wider text-[color:var(--color-ink-mute)]">
-              4 i/o 2026 primitives in parallel
+              stage 7: multiplex · 4 i/o 2026 primitives
             </span>
           </div>
           <p className="text-[13px] text-[color:var(--color-ink-dim)] leading-relaxed max-w-[68ch]">
-            The verified article from stage six fans out into four publishable formats — TTS bulletin, talk-radio segment, 3-slide carousel, avatar-animated Veo clip. Your voice preserved through every channel.
+            The verified article from stage six fans out into four publishable artifacts — TTS bulletin, talk-radio segment, 3-slide carousel, avatar-animated Veo clip. Your voice preserved through every format.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
