@@ -366,6 +366,41 @@
         opacity: 0.22; pointer-events: none; user-select: none;
       }
 
+      /* ───── closing CTA (between quote and foot wordmark) ───── */
+      .closer-cta {
+        padding: 5rem 2.5rem 4rem;
+        text-align: center;
+        display: flex; flex-direction: column; align-items: center; gap: 1.25rem;
+      }
+      .closer-cta h2 {
+        font-family: var(--font-display); font-weight: 300;
+        font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+        line-height: 1.05; letter-spacing: -0.015em;
+        color: var(--ink); margin: 0; max-width: 32rem; text-wrap: balance;
+      }
+      .closer-cta h2 em { font-style: italic; color: var(--amber); }
+      .closer-cta a.button {
+        display: inline-flex; align-items: center; gap: 0.7rem;
+        padding: 0.85rem 1.6rem; border-radius: 999px;
+        border: 1px solid rgba(232, 165, 116, 0.35);
+        color: var(--ink); text-decoration: none;
+        font-family: var(--font-body); font-weight: 450; font-size: 0.95rem;
+        letter-spacing: -0.005em;
+        transition: background 220ms ease, border-color 220ms ease;
+      }
+      .closer-cta a.button::before {
+        content: ""; width: 7px; height: 7px; border-radius: 50%;
+        background: var(--amber); box-shadow: 0 0 10px rgba(232, 165, 116, 0.65);
+      }
+      .closer-cta a.button:hover {
+        background: rgba(232, 165, 116, 0.10);
+        border-color: rgba(232, 165, 116, 0.6);
+      }
+      .closer-cta .caption {
+        font-family: var(--font-mono); font-size: 0.7rem;
+        letter-spacing: 0.04em; color: var(--ink-mute); margin: 0;
+      }
+
       /* ───── footer ───── */
       footer.foot { padding: 2.5rem 2.5rem 3.5rem; text-align: center; font-family: var(--font-mono);
         font-size: 0.72rem; color: var(--ink-mute); letter-spacing: 0.04em;
@@ -585,6 +620,12 @@
         <blockquote>
           &ldquo;The voice is the only part that can&rsquo;t be outsourced.&rdquo;
         </blockquote>
+      </section>
+
+      <section class="closer-cta">
+        <h2>See the seven agents run, <em>end to end.</em></h2>
+        <a href="/app/" class="button">Run the live demo →</a>
+        <p class="caption">Cached replay or real Gemini APIs — your pick</p>
       </section>
 
       <section class="foot-mark" aria-hidden="true">
