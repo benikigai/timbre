@@ -220,6 +220,7 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                 target="tts"
                 runId={state.runId}
                 placeholder="make it more energetic · shorten to 30s · drop the intro"
+                draft={articleText}
               />
             )}
           </GlassPanel>
@@ -263,6 +264,7 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                 target="carousel"
                 runId={state.runId}
                 placeholder="warmer palette · more diagrammatic · darker mood"
+                draft={articleText}
               />
             )}
           </GlassPanel>
@@ -630,20 +632,23 @@ function InputPreview({ label, snippet }: { label: string; snippet: string }) {
 }
 
 // Sends an LLM-targeted refinement instruction for a multiplex output.
-// Backend contract: POST /api/multiplex/refine { run_id, target, instruction }
-// → { status: "queued", job_id?: string } or graceful 4xx/5xx.
-// The actual regenerated artifact arrives via the multiplex.job_completed
-// SSE event, so the audio/image swaps in-place without a page reload.
+// Backend contract: POST /api/multiplex/refine
+//   { run_id, target, instruction, draft?, prior_instructions? }
+// Article `draft` + cumulative `prior_instructions` keep content stable
+// across style tweaks (otherwise Imagen invents fresh content each refine).
 function RefineInput({
   target,
   runId,
   placeholder,
+  draft,
 }: {
   target: "tts" | "carousel";
   runId: string | null;
   placeholder: string;
+  draft?: string;
 }) {
   const [instruction, setInstruction] = useState("");
+  const [priorInstructions, setPriorInstructions] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "queued" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -656,12 +661,19 @@ function RefineInput({
       const r = await fetch("/api/multiplex/refine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ run_id: runId, target, instruction: trimmed }),
+        body: JSON.stringify({
+          run_id: runId,
+          target,
+          instruction: trimmed,
+          ...(draft ? { draft } : {}),
+          ...(priorInstructions.length ? { prior_instructions: priorInstructions } : {}),
+        }),
       });
       if (!r.ok) {
         const body = await r.text();
         throw new Error(`HTTP ${r.status}: ${body.slice(0, 140)}`);
       }
+      setPriorInstructions((prev) => [...prev, trimmed]);
       setStatus("queued");
       setInstruction("");
       setTimeout(() => setStatus("idle"), 4000);
@@ -673,14 +685,31 @@ function RefineInput({
 
   return (
     <div className="flex flex-col gap-1.5 pt-2 mt-1 border-t border-[color:var(--color-hairline)]">
-      <div className="flex items-center gap-1.5">
-        <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider text-[color:var(--color-sage)]">
-          adjust with ai →
-        </span>
-        <span className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-mute)]">
-          gemini-3.5-flash regenerates the {target}
-        </span>
+      <div className="flex items-center justify-between gap-1.5 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-wider text-[color:var(--color-sage)]">
+            adjust with ai →
+          </span>
+          <span className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-mute)]">
+            content stays · style accumulates
+          </span>
+        </div>
+        {priorInstructions.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setPriorInstructions([])}
+            className="font-[family-name:var(--font-mono)] text-[9px] text-[color:var(--color-ink-mute)] hover:text-[color:var(--color-ink)] underline"
+            title={`Clear ${priorInstructions.length} stacked instruction${priorInstructions.length === 1 ? "" : "s"}`}
+          >
+            reset style ({priorInstructions.length})
+          </button>
+        )}
       </div>
+      {priorInstructions.length > 0 && (
+        <div className="text-[10px] font-[family-name:var(--font-mono)] text-[color:var(--color-ink-mute)] italic truncate" title={priorInstructions.join(" · ")}>
+          stacked: {priorInstructions.join(" · ")}
+        </div>
+      )}
       <div className="flex gap-2">
         <input
           type="text"

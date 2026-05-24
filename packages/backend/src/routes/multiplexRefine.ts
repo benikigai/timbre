@@ -19,6 +19,12 @@ interface RefineBody {
   run_id?: string;
   target?: "tts" | "carousel";
   instruction?: string;
+  // Article context — keeps content stable across style refines so "warmer
+  // palette" tweaks the look without inventing new slide content.
+  draft?: string;
+  // Frontend can pass the accumulated history of prior instructions so
+  // each refine is a delta on top of the previous, not a fresh start.
+  prior_instructions?: string[];
 }
 
 // In-memory artifact store: jobId → { mime, bytes (base64) }
@@ -155,9 +161,30 @@ multiplexRefineRouter.post("/refine", async (req: Request, res: Response) => {
       } else {
         // ── Carousel: imagen-4.0-generate-001, 3 slides at 3:4 portrait
         // (Imagen 4 supports 1:1, 9:16, 16:9, 4:3, 3:4 only — 4:5 returns 400)
-        const slidePrompts = [1, 2, 3].map(
-          (i) =>
-            `Slide ${i} of 3 for a technical founder's social carousel. Style: ${instruction}. Portrait 3:4 composition. Minimalist, dark background, single bright accent color, no text overlay.`,
+        //
+        // Stability strategy: extract the article's CORE TOPIC up-front and
+        // pin it into every slide prompt. Style instructions (cumulative —
+        // current + prior) shape the LOOK without changing the content.
+        const articleSnippet = (body.draft ?? "").trim().slice(0, 600);
+        const accumulatedStyle = [
+          ...(body.prior_instructions ?? []),
+          instruction,
+        ]
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(" · ");
+
+        // Each slide is a distinct angle on the SAME article — first the
+        // hook, then a key claim, then the closer. Keeps narrative arc
+        // across slides even as style evolves.
+        const slideRoles = [
+          "Slide 1 of 3 — the HOOK / cold-open visual. Strong central concept that introduces the article's core idea.",
+          "Slide 2 of 3 — the KEY CLAIM. A single supporting fact or data point from the article, visualized as a focal element.",
+          "Slide 3 of 3 — the CLOSE / takeaway. The article's punchline as a visual conclusion.",
+        ];
+        const slidePrompts = slideRoles.map(
+          (role) =>
+            `${role}\n\nARTICLE CONTENT (treat as binding subject matter — every slide must visually reference this):\n${articleSnippet || "(no article context yet)"}\n\nSTYLE DIRECTION (cumulative): ${accumulatedStyle}\n\nFORMAT: Portrait 3:4 composition. Minimalist, dark background, single bright accent color, no text overlay. Editorial illustration style, not a screenshot.`,
         );
         const slideB64s: string[] = [];
         for (const prompt of slidePrompts) {
@@ -184,7 +211,12 @@ multiplexRefineRouter.post("/refine", async (req: Request, res: Response) => {
           job: "carousel",
           result_url: JSON.stringify(urls),
           duration_ms: Date.now() - new Date(startedAt).getTime(),
-          meta: { primitive: "imagen-4.0-generate-001", slide_count: 3 },
+          meta: {
+            primitive: "imagen-4.0-generate-001",
+            slide_count: 3,
+            // Echo back the cumulative style so frontend can track + show.
+            cumulative_style: accumulatedStyle,
+          },
         });
         console.log(`[multiplex.refine carousel] ok slideIds=${slideIds.join(",")}`);
       }
