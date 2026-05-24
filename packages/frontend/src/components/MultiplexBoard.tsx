@@ -30,13 +30,17 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
   const [showGeminiFallback, setShowGeminiFallback] = useState(false);
   const [veoStatus, setVeoStatus] = useState<"idle" | "generating" | "done" | "error">("idle");
   const [veoUrl, setVeoUrl] = useState<string | null>(null);
+  const [veoAudioUrl, setVeoAudioUrl] = useState<string | null>(null);
+  const [veoNarrationScript, setVeoNarrationScript] = useState<string | null>(null);
   const [veoError, setVeoError] = useState<string | null>(null);
   const [veoLen, setVeoLen] = useState<5 | 8 | 15>(5);
-  // Avatar: user can attach a photo of themselves; Veo animates it as the
-  // visual anchor instead of generating from text alone.
+  // Avatar: user can attach a photo (Veo animates) OR a video (we skip Veo
+  // and play their own clip — e.g. an export from the Gemini app avatar).
   const [avatarB64, setAvatarB64] = useState<string | null>(null);
   const [avatarMime, setAvatarMime] = useState<string>("image/png");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
+  const [uploadedVideoName, setUploadedVideoName] = useState<string | null>(null);
   const multiplexActive = state.stages.multiplex.status === "active" || state.stages.multiplex.status === "done";
 
   // ALL hooks above any early return (rules-of-hooks).
@@ -96,7 +100,6 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
     reader.onload = () => {
       const result = reader.result;
       if (typeof result !== "string") return;
-      // result is "data:image/png;base64,…" — strip the prefix.
       const comma = result.indexOf(",");
       if (comma < 0) return;
       setAvatarB64(result.slice(comma + 1));
@@ -104,6 +107,16 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
       setAvatarPreview(result);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleVideoUpload = (file: File) => {
+    // Bypass Veo entirely — user has a pre-recorded clip (e.g. Gemini-app
+    // avatar export). Create object URL and play directly.
+    const url = URL.createObjectURL(file);
+    setUploadedVideoUrl(url);
+    setUploadedVideoName(file.name);
+    setVeoUrl(url);
+    setVeoStatus("done");
   };
 
   const handleVeoGenerate = async () => {
@@ -127,14 +140,41 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
         }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 120)}`);
-      const data = (await r.json()) as { url: string | null };
+      const data = (await r.json()) as {
+        url: string | null;
+        narration_audio_b64: string | null;
+        narration_script: string | null;
+        audio_mime: string | null;
+      };
       if (!data.url) throw new Error("Veo returned no URL");
       setVeoUrl(data.url);
+      if (data.narration_audio_b64 && data.audio_mime) {
+        setVeoAudioUrl(`data:${data.audio_mime};base64,${data.narration_audio_b64}`);
+        setVeoNarrationScript(data.narration_script ?? null);
+      }
       setVeoStatus("done");
     } catch (e) {
       setVeoError((e as Error).message);
       setVeoStatus("error");
     }
+  };
+
+  // Sync TTS audio playback with the Veo silent video.
+  const handleVideoPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    if (!veoAudioUrl) return;
+    const audio = (e.currentTarget.parentElement?.querySelector(
+      "audio[data-narration]",
+    ) as HTMLAudioElement | null);
+    if (audio) {
+      audio.currentTime = e.currentTarget.currentTime;
+      audio.play().catch(() => {});
+    }
+  };
+  const handleVideoPause = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const audio = (e.currentTarget.parentElement?.querySelector(
+      "audio[data-narration]",
+    ) as HTMLAudioElement | null);
+    if (audio) audio.pause();
   };
 
   return (
@@ -324,10 +364,10 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
               placeholder="direction (optional): 'wider shot', 'sunset lighting', 'energetic gestures'…"
               className="w-full bg-[color:var(--color-bg)] border border-[color:var(--color-hairline)] focus:border-[color:var(--color-sage)]/50 rounded-lg px-3 py-2 text-[12px] text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-mute)] placeholder:italic outline-none transition disabled:opacity-50"
             />
-            {/* Avatar photo — Veo animates this as the visual anchor */}
+            {/* Avatar photo (Veo animates) OR video upload (bypass Veo) */}
             <div className="flex items-center gap-3 flex-wrap">
               <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] cursor-pointer px-3 py-1.5 rounded-full border border-[color:var(--color-hairline)] hover:border-[color:var(--color-sage)]/40 hover:text-[color:var(--color-ink)] transition">
-                {avatarB64 ? "↻ swap avatar" : "📷 attach avatar photo"}
+                {avatarB64 ? "↻ swap photo" : "📷 photo (Veo animates)"}
                 <input
                   type="file"
                   accept="image/*"
@@ -335,6 +375,18 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f) handleAvatarSelect(f);
+                  }}
+                />
+              </label>
+              <label className="font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-mute)] cursor-pointer px-3 py-1.5 rounded-full border border-[color:var(--color-hairline)] hover:border-[color:var(--color-amber)]/40 hover:text-[color:var(--color-ink)] transition">
+                {uploadedVideoUrl ? "↻ swap video" : "🎬 use my avatar video"}
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleVideoUpload(f);
                   }}
                 />
               </label>
@@ -397,8 +449,37 @@ export function MultiplexBoard({ state }: MultiplexBoardProps) {
               </button>
             </div>
             {veoStatus === "done" && veoUrl ? (
-              <div className="aspect-video rounded-lg overflow-hidden border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)]">
-                <video controls src={veoUrl} className="w-full h-full" />
+              <div className="flex flex-col gap-2">
+                <div className="aspect-video rounded-lg overflow-hidden border border-[color:var(--color-hairline)] bg-[color:var(--color-bg)] relative">
+                  <video
+                    controls
+                    src={veoUrl}
+                    onPlay={handleVideoPlay}
+                    onPause={handleVideoPause}
+                    className="w-full h-full"
+                  />
+                  {veoAudioUrl && (
+                    <audio data-narration src={veoAudioUrl} preload="auto" className="hidden" />
+                  )}
+                </div>
+                {veoAudioUrl ? (
+                  <p className="text-[10px] font-mono text-[color:var(--color-sage)]">
+                    🔊 narration synced · plays in sync with the silent Veo clip
+                    {veoNarrationScript && (
+                      <span className="text-[color:var(--color-ink-mute)] italic ml-1">
+                        "{veoNarrationScript.slice(0, 80)}…"
+                      </span>
+                    )}
+                  </p>
+                ) : uploadedVideoName ? (
+                  <p className="text-[10px] font-mono text-[color:var(--color-sage)]">
+                    📁 playing your uploaded clip: {uploadedVideoName}
+                  </p>
+                ) : (
+                  <p className="text-[10px] font-mono text-[color:var(--color-ink-mute)] italic">
+                    silent · Veo Developer API doesn't ship audio. Pair with TTS bulletin above for sound.
+                  </p>
+                )}
               </div>
             ) : veoStatus === "generating" ? (
               <div className="aspect-video rounded-lg border border-dashed border-[color:var(--color-amber)]/40 bg-[color:var(--color-amber)]/5 flex items-center justify-center">

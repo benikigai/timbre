@@ -10,6 +10,72 @@ import { env } from "../env.js";
 
 export const veoRouter = Router();
 
+// Wrap raw PCM (L16, mono, 16-bit) in a WAV header so <audio> plays it.
+function wrapPcmAsWav(pcmBase64: string, sampleRate = 24000): string {
+  const pcm = Buffer.from(pcmBase64, "base64");
+  const byteRate = sampleRate * 2;
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0);
+  header.writeUInt32LE(36 + pcm.length, 4);
+  header.write("WAVE", 8);
+  header.write("fmt ", 12);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(1, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(byteRate, 28);
+  header.writeUInt16LE(2, 32);
+  header.writeUInt16LE(16, 34);
+  header.write("data", 36);
+  header.writeUInt32LE(pcm.length, 40);
+  return Buffer.concat([header, pcm]).toString("base64");
+}
+
+// Generate matching TTS narration to overlay on the silent Veo clip.
+// Returns base64 WAV or null on failure (video alone is still useful).
+async function generateNarration(
+  scriptPrompt: string,
+  lengthSec: number,
+): Promise<{ audio_b64: string; script: string } | null> {
+  try {
+    const targetWords = Math.round(lengthSec * (150 / 60));
+    const scriptResp = await genai.interactions.create(
+      {
+        model: "gemini-3.5-flash",
+        system_instruction: `Write a ${lengthSec}-second spoken narration (~${targetWords} words). Conversational, first-person, one striking opener. NO stage directions. Output only the script body.`,
+        input: scriptPrompt,
+      } as never,
+      { timeout: 30_000 },
+    );
+    const script = ((scriptResp as { output_text?: string }).output_text ?? "").trim();
+    if (!script) return null;
+
+    const ttsResp = await genai.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ role: "user", parts: [{ text: script }] }],
+      config: {
+        responseModalities: ["AUDIO"],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+        },
+      } as never,
+    });
+    const cands = (ttsResp as {
+      candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: string; mimeType?: string } }> } }>;
+    }).candidates ?? [];
+    const part = cands[0]?.content?.parts?.find((p) => p?.inlineData);
+    const audioData = part?.inlineData?.data;
+    const audioMime = part?.inlineData?.mimeType ?? "audio/wav";
+    if (!audioData) return null;
+    const rateMatch = audioMime.match(/rate=(\d+)/);
+    const rate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+    return { audio_b64: wrapPcmAsWav(audioData, rate), script };
+  } catch (e) {
+    console.warn("[veo] narration failed:", (e as Error).message);
+    return null;
+  }
+}
+
 // GET /api/veo/file/:fileId — proxy the Veo-generated file with the API key
 // (the v1beta/files/<id>:download URI requires x-goog-api-key auth that the
 // browser can't supply). Streams the bytes through to the <video> element.
@@ -135,12 +201,22 @@ veoRouter.post("/", async (req: Request, res: Response) => {
       const m = upstreamUri.match(/files\/([^:]+):download/);
       if (m) proxyUrl = `/api/veo/file/${m[1]}`;
     }
+    // Veo Developer API returns silent video (generateAudio is Enterprise-
+    // only). Generate matching TTS narration to overlay client-side.
+    const narration = await generateNarration(
+      `Person on camera describing this: ${prompt.slice(0, 400)}. Speak as if narrating a short clip about it.`,
+      lengthSec,
+    );
+
     res.json({
       url: proxyUrl ?? upstreamUri ?? null,
       data_b64: bytes ?? null,
       duration_seconds: lengthSec,
       model: "veo-2.0-generate-001",
       took_ms: Date.now() - start,
+      narration_audio_b64: narration?.audio_b64 ?? null,
+      narration_script: narration?.script ?? null,
+      audio_mime: narration ? "audio/wav" : null,
     });
   } catch (err) {
     const message = (err as Error).message ?? String(err);
