@@ -206,7 +206,9 @@
       }
       .status-card .live { color: var(--amber); text-decoration: none; transition: color 200ms ease; }
       .status-card a.live:hover { color: var(--amber-hot); }
-      .status-card a.live .ext { opacity: 0.55; margin-left: 0.18rem; font-size: 0.78em; vertical-align: 0.06em; }
+      .status-card a.hack { color: var(--ink-dim); text-decoration: none; transition: color 200ms ease; }
+      .status-card a.hack:hover { color: var(--sage); }
+      .status-card a .ext { opacity: 0.55; margin-left: 0.18rem; font-size: 0.78em; vertical-align: 0.06em; }
       .status-card .sep { color: var(--ink-mute); margin: 0 0.75rem; }
 
       /* ───── section frames (varied rhythm) ───── */
@@ -459,7 +461,13 @@
               title="Scout runs on Google Antigravity — the new I/O 2026 managed-agent runtime. Always-on Linux sandbox, hourly ticks."
             >● Scout online<span class="ext">↗</span></a>
             <span class="sep">/</span>
-            <span>Cerebral Valley × I/O 2026</span>
+            <a
+              href="https://cerebralvalley.ai/e/google-io-hackathon/details"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hack"
+              title="Cerebral Valley × Google I/O 2026 Hackathon"
+            >Cerebral Valley × I/O 2026<span class="ext">↗</span></a>
           </div>
         </div>
       </main>
